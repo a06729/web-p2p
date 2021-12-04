@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="kr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/mvp.css">
+    <link rel="stylesheet" href="/public/css/index.css">
+    <title>Document</title>
+    <script>
+        const ROOM_ID="<%= roomId %>";
+    </script>
+</head>
+<body onbeforeunload="return winClose()">
+        <header>
+            <h1>Noom</h1>
+        </header>
+        <main>
+            <div class="avatar_div">
+                <div class="my_avatar_div">
+                    <img id="my_avatar_img" class="my_avatar_img" src="" alt="" srcset="">
+                </div>
+                <div class="guest_avatar_div">
+                </div>
+            </div>
+            <form action="">
+                <button>버튼</button>
+            </form>
+
+            <div>
+                <form action="" id="fileForm">
+                    <input type="file" id="fileBtn">
+                    <button id="file">파일 보내기</button>
+                </form>
+            </div>
+        </main>
+
+
+
+    
+    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js" defer></script>
+    <script src="/socket.io/socket.io.js" defer></script>
+    <script src="/public/js/app.js" defer></script>
+</body>
+</html>
