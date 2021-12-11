@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/mvp.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
     <link rel="stylesheet" href="/public/css/index.css">
     <title>Document</title>
     <script>
@@ -12,30 +14,41 @@
     </script>
 </head>
 <body onbeforeunload="return winClose()">
-        <header>
+        <!-- <header>
             <h1>Noom</h1>
-        </header>
-        <main>
-            <div class="avatar_div">
-                <div class="my_avatar_div">
-                    <img id="my_avatar_img" class="my_avatar_img" src="" alt="" srcset="">
+        </header> -->
+        <div class="main_div">
+            <main class="main_content">
+                <div class="avatar_div">
+                    <h3 class="my_avatar_title">나의 정보</h3>
+                    <div class="my_avatar_div">
+                        <div class="my_avatar_div__profile">
+                            <img id="my_avatar_img" class="my_avatar_img" src="" alt="" srcset="">
+                            <div class="my_avatar_div__profile__title"></div>
+                        </div>
+                    </div>
+                    <h3 class="guest_avatar_title">접속 유저</h4>
+                    <div class="none_guest_div">
+                        <span class="material-icons">
+                            person_off
+                        </span>
+                        <p>접속한 유저가 없습니다.</p>       
+                    </div>
+                    <div class="guest_avatar_div">
+                    </div>
+                    <input type="file" id="fileUpload" style="display:none"/> 
+                    <h3 class="file-list-title">파일 리스트</h3>
+                    <ul id="fileUl" class="file_ul"></ul>
+                    
+                    <div class="none_file_div">
+                        <span class="material-icons none_file_div__none-icon">
+                            folder_off
+                        </span>
+                        <p>전송 받은 파일이 없습니다.</p>     
+                    </div>
                 </div>
-                <div class="guest_avatar_div">
-                </div>
-                <input type="file" id="fileUpload" style="display:none"/> 
-                <ul id="fileUl"></ul>
-            </div>
-            <form action="">
-                <button>버튼</button>
-            </form>
-
-            <div>
-                <form action="" id="fileForm">
-                    <input type="file" id="fileBtn">
-                    <button id="file">파일 보내기</button>
-                </form>
-            </div>
-        </main>
+            </main>
+        </div>
 
 
 

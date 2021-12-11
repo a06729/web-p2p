@@ -1,20 +1,167 @@
 @import url(".public/css/reset.css");
+@import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
+
+
+body{
+    background-color: #eef0f2;
+}
+.main_div{
+    display: flex;
+}
+
+.file_ul{
+    list-style: none;
+}
+.file-list-title{
+    font-family: 'Jua', sans-serif;
+    text-align: center;
+}
+
+.none_file_div{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.none_file_div > p{
+    font-family: 'Jua', sans-serif;
+    text-align: center;
+    font-size: 25px;
+}
+.none_file_div__none-icon{
+    color: crimson;
+    font-size: 40px;
+}
+
+.main_content{ 
+   width: 100%;
+   background-color: white;
+   border-radius: 15px;
+   box-shadow: 0 0 10px rgba(0,0,0,0.2);
+   box-sizing: border-box;
+}
+
+.my_avatar_div{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 
 .my_avatar_img{
     width: 5rem;
     height: 100px;
 }
-.guest_avatar_img{
-    width: 5rem;
-    height: 100px;
+.my_avatar_div__profile{
+    font-family: sans-serif;
+    text-align: center;
+    max-width: 200px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    padding: 20px;
+    margin-right: 10px;
+    border-radius: 15px;
 }
 .avatar_div{
     display: flex;
     flex-direction: column;
     justify-content: center;
 }
+.my_avatar_div__profile__title{
+    font-family: 'Jua', sans-serif;
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+
+.my_avatar_title{
+    font-family: 'Jua', sans-serif;
+    text-align: center;
+    font-size: 25px;
+}
+
+.none_guest_div{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.none_guest_div >span{
+    font-size: 40px;
+    color: crimson;
+}
+.none_guest_div>p{
+    font-family: 'Jua', sans-serif;
+    text-align: center;
+    font-size: 25px;
+}
+
+.guest_avatar_title{
+    font-family: 'Jua', sans-serif;
+    text-align: center;
+    font-size: 25px;
+}
+
 .guest_avatar_div{
     display: flex;
     flex-direction: row;
     align-items: center;
+    overflow-x: auto;
+    height: 400px;
+    padding: 0px 1rem 0px 1rem ;
+}
+.guest_avatar_div__profile{
+    font-family: sans-serif;
+    text-align: center;
+    max-width: 200px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    padding: 20px;
+    margin-right: 10px;
+    border-radius: 15px;
+}
+.guest_avatar_div__profile__img{
+    width: 5rem;
+    height: 100px;
+}
+
+.guest_avatar_div__profile__title{
+    font-family: 'Jua', sans-serif;
+    text-align: center;
+    font-size: 16px;
+    margin-bottom: 20px;
+}
+.guest_avatar_div__profile__file-icon{
+    font-size: 50px;
+}
+
+.profile_div{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.profile{
+    font-family: sans-serif;
+    text-align: center;
+    max-width: 200px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    padding: 20px;
+}
+.profile__image{
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin: 0 auto 20px auto;
+    display: block;
+}
+.profile__name{
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.profile__title{
+    margin-bottom: 20px;
+}
+.profile__detail{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
