@@ -1,2 +1,3 @@
 src/fbase/serviceAccountKey.json
 node_modules
+.env

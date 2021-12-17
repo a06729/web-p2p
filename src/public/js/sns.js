@@ -1,7 +1,7 @@
 
 
 function shareKakao(){
-    Kakao.init('3bee3f01f577539c153130cb1bd56123');
+    Kakao.init(KakaoApi);
     const url=location.href;
     Kakao.Link.createDefaultButton({
         container: '#btnKakao', // 카카오공유버튼ID

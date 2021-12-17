@@ -5,7 +5,7 @@ import SocketIO from "socket.io";
 import dbService from "./fbase/firebase";
 
 const {v4:uuidV4}=require("uuid");
-
+require('dotenv').config();
 
 const app=express(); 
 
@@ -19,7 +19,11 @@ app.get("/",(req,res)=>{
     
 });
 app.get("/:room",(req,res)=>{
-    res.render('index',{roomId:req.params.room});
+    console.log(process.env.KakaoApi);
+    res.render('index',{
+        roomId:req.params.room,
+        KakaoApi:process.env.KakaoApi
+    });
 });
 
 const httpServer=http.createServer(app);
