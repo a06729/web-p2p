@@ -1,12 +1,17 @@
-@import url(".public/css/reset.css");
+@import url("reset.css");
+@import url("styles.css");
 @import url('https://fonts.googleapis.com/css2?family=Jua&display=swap');
 
 
 body{
     background-color: #eef0f2;
 }
-.main_div{
+/* .main_div{
     display: flex;
+} */
+
+.shareLink{
+    font-size: 68px;
 }
 
 .file_ul{
@@ -132,7 +137,7 @@ body{
     font-size: 50px;
 }
 
-.profile_div{
+/* .profile_div{
     display: flex;
     justify-content: center;
     align-items: center;
@@ -164,4 +169,4 @@ body{
     display: flex;
     align-items: center;
     justify-content: center;
-}
+} */

@@ -25,10 +25,10 @@ let file;
 let arrayToStoreChunks = [];
 
 //청크 사이즈
-const chunkLength = 65535;
+const chunkLength = 1024*255;
 
 //파일 태그를 id값으로 접근합니다.
-const file_elm=document.querySelector("#fileUpload");
+// const file_elm=document.querySelector("#fileUpload");
 
 //guest_avatar_div 클래스 명을 가진 태그에 접근합니다.
 const guest_avatar_div=document.querySelector(".guest_avatar_div");
@@ -59,6 +59,7 @@ myPeer.on('connection',function(dataConnection){
             if (file_data.last) {
                 saveToDisk(arrayToStoreChunks.join(''),file_data.file_name);
                 arrayToStoreChunks = []; // resetting array
+                conn.close();
             }
         });
     });
@@ -103,6 +104,8 @@ function addGuestAvatar(userList){
         const guest_avatar_title_el=document.createElement("div");
         const guest_avatar_fileicon_el=document.createElement("span");
 
+        const guest_avatar_file_input_el=document.createElement("input");
+
         if(obj['peerId']!=peerId){
             guest_avatar_profile_el.className="guest_avatar_div__profile";
             
@@ -113,6 +116,20 @@ function addGuestAvatar(userList){
             guest_avatar_fileicon_el.innerText="upload_file";
             guest_avatar_fileicon_el.title=obj['peerId'];
 
+            guest_avatar_file_input_el.type="file";
+            guest_avatar_file_input_el.id=obj['peerId'];
+            guest_avatar_file_input_el.style.display="none";
+            guest_avatar_file_input_el.onchange=function(event){
+                const reader = new window.FileReader();
+                
+                file=event.target.files[0];
+                reader.fileName=file.name;
+                reader.readAsDataURL(file);
+                reader.onload = onReadAsDataURL;
+                console.log("태그에 입력");
+                console.log(file);
+            }
+
             img_el.src=`${avatar_api_url}/${obj['peerId']}.svg `;
             img_el.className="guest_avatar_div__profile__img";
             img_el.title=obj['peerId'];
@@ -121,6 +138,7 @@ function addGuestAvatar(userList){
             guest_avatar_profile_el.appendChild(img_el);
             guest_avatar_profile_el.appendChild(guest_avatar_title_el);
             guest_avatar_profile_el.appendChild(guest_avatar_fileicon_el);
+            guest_avatar_profile_el.appendChild(guest_avatar_file_input_el);
 
             guest_avatar_div.appendChild(guest_avatar_profile_el);
 
@@ -139,13 +157,13 @@ function addGuestAvatar(userList){
         none_guest_div.style.display="none";
     }
     //접속유저 이미지 태그를 전부 가져옵니다.
-    document.querySelectorAll(".guest_avatar_div__profile__img").forEach((elem,index)=>{
-        //각 접속유저 이미지 태그에 click시 실행되는 함수를 추가합니다.
-        elem.addEventListener("click",click_guest_avatar);
-    });
+    // document.querySelectorAll(".guest_avatar_div__profile__img").forEach((elem,index)=>{
+    //     //각 접속유저 이미지 태그에 click시 실행되는 함수를 추가합니다.
+    //     elem.addEventListener("click",click_guest_avatar);
+    // });
     document.querySelectorAll(".guest_avatar_div__profile__file-icon").forEach((elem,index)=>{
         //각 접속유저 이미지 태그에 click시 실행되는 함수를 추가합니다.
-        elem.addEventListener("click",click_guest_avatar);
+        elem.addEventListener("click",clic_file_icon);
     });
 }
 
@@ -162,18 +180,25 @@ function winClose(){
     //브라우저가 종료되면 서버에 user-leave 함수를 실행
     socket.emit('user-leave',ROOM_ID,peerId,fireDocId);
 }
+function clic_file_icon(event){
+    const id=event.target.title;
+    const file_btn=document.getElementById(`${id}`);
+    conn=myPeer.connect(file_btn.id);
+    file_btn.click();
+}
 
 //클릭한 아바타 값을 가져온다.
-function click_guest_avatar(event){
-    const guest_peer_id=event.target.title;
-    conn=myPeer.connect(guest_peer_id);
+// function click_guest_avatar(event){
+//     const guest_peer_id=event.target.title;
+//     conn=myPeer.connect(guest_peer_id);
     
-    //파일태그 클릭을 방생시키는 함수
-    document.getElementById('fileUpload').click();
+//     //파일태그 클릭을 방생시키는 함수
+//     document.getElementById('fileUpload').click();
     
-    console.log(guest_peer_id);
+//     console.log(guest_peer_id);
 
-}
+// }
+
 
 function onReadAsDataURL(event, text) {
     var data = {}; // data object to transmit over data channel
@@ -185,7 +210,7 @@ function onReadAsDataURL(event, text) {
     } else {
         data.message = text;
         data.last = true;
-        data.file_name=event.target.fileName;
+        data.file_name=file.name;
     }
     console.log(`data:${JSON.stringify(data)}`);
     conn.send(JSON.stringify(data)); // use JSON.stringify for chrome!
@@ -193,7 +218,7 @@ function onReadAsDataURL(event, text) {
     var remainingDataURL = text.slice(data.message.length);
     if (remainingDataURL.length) setTimeout(function () {
         onReadAsDataURL(null, remainingDataURL); // continue transmitting
-    }, 500)
+    }, 500);
 }
 
 //파일 세이브시 ul태그에 li태그로 추가해서 파일 다운로드 만들기
@@ -205,12 +230,14 @@ function saveToDisk(fileUrl, fileName) {
     if(none_file_div_el.childElementCount>0){
         none_file_div_el.style.display="none";
     }
-    
+    const url=dataURItoBlob(fileUrl);
     var save = document.createElement('a');
-    save.href = fileUrl;
+    save.href =URL.createObjectURL(url);
     save.target = '_blank';
-    save.download = fileName || fileUrl;
-    
+    // save.download = fileName || fileUrl;
+    save.addEventListener("click",file_server_download);
+
+
     save.innerText=fileName;
 
     li.append(save);
@@ -218,17 +245,64 @@ function saveToDisk(fileUrl, fileName) {
     ul.append(li);
 }
 
+function dataURItoBlob(dataURI) {
+    const byteString = atob(dataURI.split(',')[1]);
+    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+    
+    const ab = new ArrayBuffer(byteString.length);
+    let ia = new Uint8Array(ab);
+    
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    const blob = new Blob([ab], {type: mimeString});
+    return blob;
+}
+
+function file_server_download(event){
+    event.preventDefault();
+    const filename=event.target.text;
+    const blob=event.target.href;
+    saveAs(blob, filename);
+}
+
+// function stream_download(event){
+//     event.preventDefault();
+//     const filename=event.target.text;
+//     const href_blob=event.target.href;
+//     const blob=dataURItoBlob(href_blob);
+//     const fileStream=streamSaver.createWriteStream(filename,{
+//         size:blob.size
+//     });
+
+//     const readableStream=blob.stream();
+
+//     if(window.WritableStream&&readableStream.pipeTo){
+//         return readableStream.pipeTo(fileStream).then(()=>{
+//             console.log("done writing");
+//         });
+//     }
+//     window.writer = fileStream.getWriter();
+
+//     const reader = readableStream.getReader();
+//     const pump = () => reader.read()
+//       .then(res => res.done
+//         ? writer.close()
+//         : writer.write(res.value).then(pump));
+
+//     pump();
+// }
 
 //파일 태그에서 파일이 업로드가되면 발생하는 이벤트
-file_elm.addEventListener("change",(event)=>{
-    event.preventDefault();
+// file_elm.addEventListener("change",(event)=>{
+//     event.preventDefault();
     
-    const reader = new window.FileReader();
+//     const reader = new window.FileReader();
     
-    file=event.target.files[0];
-    reader.fileName=file.name;
-    reader.readAsDataURL(file);
-    reader.onload = onReadAsDataURL;
+//     file=event.target.files[0];
+//     reader.fileName=file.name;
+//     reader.readAsDataURL(file);
+//     reader.onload = onReadAsDataURL;
     
-    console.log(file);
-});
+//     console.log(file);
+// });
