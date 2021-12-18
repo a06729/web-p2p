@@ -22,10 +22,14 @@ let conn;
 let fireDocId;
 
 let file;
+let file_size;
+// let current_file_size=0;
+// let percentComplete 
+
 let arrayToStoreChunks = [];
 
 //청크 사이즈
-const chunkLength = 1024*255;
+const chunkLength = 1024*1024*1;
 
 //파일 태그를 id값으로 접근합니다.
 // const file_elm=document.querySelector("#fileUpload");
@@ -53,9 +57,10 @@ myPeer.on('open',(id)=>{
 myPeer.on('connection',function(dataConnection){
     dataConnection.on("open",function(){
         dataConnection.on('data',function(data){
-            console.log(`data:${JSON.parse(data)}`)
+            console.log(`data:${JSON.parse(data)}`);
             let file_data = JSON.parse(data);
             arrayToStoreChunks.push(file_data.message); // pushing chunks in array
+            console.log(`lenth:${arrayToStoreChunks.length}`);
             if (file_data.last) {
                 saveToDisk(arrayToStoreChunks.join(''),file_data.file_name);
                 arrayToStoreChunks = []; // resetting array
@@ -203,17 +208,28 @@ function clic_file_icon(event){
 function onReadAsDataURL(event, text) {
     var data = {}; // data object to transmit over data channel
 
-    if (event) text = event.target.result; // on first invocation
 
+    if (event) text = event.target.result; // on first invocation
     if (text.length > chunkLength) {
+        file_size=text.length;
         data.message = text.slice(0, chunkLength); // getting chunk using predefined chunk length
+        file_progress(data.message);
+        // percentComplete=0;
+        // console.log(`current_file_size:${current_file_size}`);
     } else {
         data.message = text;
         data.last = true;
         data.file_name=file.name;
+        file_size=text.length;
+        file_progress(text);
+        percentComplete=0;
+        // current_file_size=0;
     }
-    console.log(`data:${JSON.stringify(data)}`);
+    // console.log(`data:${JSON.stringify(data)}`);
     conn.send(JSON.stringify(data)); // use JSON.stringify for chrome!
+
+    
+    
 
     var remainingDataURL = text.slice(data.message.length);
     if (remainingDataURL.length) setTimeout(function () {
@@ -264,6 +280,13 @@ function file_server_download(event){
     const filename=event.target.text;
     const blob=event.target.href;
     saveAs(blob, filename);
+}
+
+function file_progress(current_file_chuck){
+    let current_file_size=current_file_chuck.length;
+    let percentComplete = Math.floor((current_file_size / file_size)*100);
+    
+    console.log(`percentComplete:${percentComplete}%`);
 }
 
 // function stream_download(event){
