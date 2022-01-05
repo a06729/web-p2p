@@ -4,7 +4,10 @@ import http from "http";
 import SocketIO from "socket.io";
 import dbService from "./fbase/firebase";
 
+
 const {v4:uuidV4}=require("uuid");
+const { ExpressPeerServer } = require('peer');
+
 require('dotenv').config();
 
 const app=express(); 
@@ -27,8 +30,8 @@ app.get("/:room",(req,res)=>{
 });
 
 const httpServer=http.createServer(app);
-const wsServer=SocketIO(httpServer);
 
+const wsServer=SocketIO(httpServer);
 wsServer.on("connection",(socket)=>{    
     socket.on("join-room",async(roomId,peerId,done)=>{
         let userlist=[];
@@ -81,6 +84,11 @@ wsServer.on("connection",(socket)=>{
     });
 });
 
+const peerServer = ExpressPeerServer(httpServer, {
+    debug: true,
+});
+
+app.use('/peerServer', peerServer);
 
 
 httpServer.listen(3000,()=>{

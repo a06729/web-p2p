@@ -1,8 +1,10 @@
-const socket=io();
+const socket=io("ws://localhost:3000",{
+    transports:["polling"]
+});
 const myPeer=new Peer(undefined,{
     host:'localhost',
-    port:'3001',
-    path:'/',
+    port:'3000',
+    path:'/peerServer',
     config:{'iceServers':[
         { url: 'stun:stun.l.google.com:19302' },
     ]},
@@ -46,6 +48,7 @@ const current_progress=document.querySelector(".file-current-progress");
 
 //아바타에 들어가는 이미지 api 주소 값 입니다.
 const avatar_api_url="https://avatars.dicebear.com/api/bottts";
+
 
 myPeer.on('open',(id)=>{
     const avatar_img=document.getElementById("my_avatar_img");
@@ -126,6 +129,7 @@ function addGuestAvatar(userList){
             guest_avatar_file_input_el.type="file";
             guest_avatar_file_input_el.id=obj['peerId'];
             guest_avatar_file_input_el.style.display="none";
+            guest_avatar_file_input_el.multiple="multiple";
 
             guest_avatar_file_input_el.onchange=function(event){
 
@@ -134,15 +138,30 @@ function addGuestAvatar(userList){
                 guest_avatar_file_icon.forEach((file_icon)=>{
                     file_icon.style.display="none";
                 });
-                
-                const reader = new window.FileReader();
-                
-                const file=event.target.files[0];
-                file_name=file.name;
-                // reader.fileName=file.name;
-                reader.readAsDataURL(file);
-                reader.onload = onReadAsDataURL;
-                console.log(file);
+                if(event.target.files.length>1){
+                    const zip=new JSZip(); 
+                    const files=event.target.files;
+                    for(let i=0; i<files.length; i++){
+                        zip.file(files[i].name,files[i]);
+                    }
+                    zip.generateAsync({type:"blob"}).then((content)=>{
+                        const reader = new window.FileReader();
+                        console.log(`압축내용:${content}`);
+                        file_name=`share_fileZip_${randomFileId()}.zip`;
+                        reader.readAsDataURL(content);
+                        reader.onload = onReadAsDataURL;
+                    });
+                    console.log("파일이 1개 이상입니다.");
+                }else{
+                    const reader = new window.FileReader();
+
+                    const file=event.target.files[0];
+                    file_name=file.name;
+                    
+                    reader.readAsDataURL(file);
+                    reader.onload = onReadAsDataURL;
+                    console.log(file);
+                }
             }
 
             img_el.src=`${avatar_api_url}/${obj['peerId']}.svg `;
@@ -177,7 +196,7 @@ function addGuestAvatar(userList){
     //     elem.addEventListener("click",click_guest_avatar);
     // });
     document.querySelectorAll(".guest_avatar_div__profile__file-icon").forEach((elem,index)=>{
-        //각 접속유저 이미지 태그에 click시 실행되는 함수를 추가합니다.
+        //각 접속유저 파일 업로드 이미지 태그에 click시 실행되는 함수를 추가합니다.
         elem.addEventListener("click",click_file_icon);
     });
 }
@@ -195,6 +214,7 @@ function winClose(){
     //브라우저가 종료되면 서버에 user-leave 함수를 실행
     socket.emit('user-leave',ROOM_ID,peerId,fireDocId);
 }
+
 function click_file_icon(event){
     const id=event.target.title;
     const file_btn=document.getElementById(`${id}`);
@@ -254,13 +274,14 @@ function onReadAsDataURL(event, text) {
     // console.log(`data:${JSON.stringify(data)}`);
     conn.send(JSON.stringify(data)); // use JSON.stringify for chrome!
 
-    
-    
-
     var remainingDataURL = text.slice(data.message.length);
     if (remainingDataURL.length) setTimeout(function () {
         onReadAsDataURL(null, remainingDataURL); // continue transmitting
     }, 500);
+}
+
+function randomFileId() {
+    return Math.random().toString(36).substr(2, 16);
 }
 
 //파일 세이브시 ul태그에 li태그로 추가해서 파일 다운로드 만들기
