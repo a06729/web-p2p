@@ -6,9 +6,10 @@
 body{
     background-color: #eef0f2;
 }
-/* .main_div{
-    display: flex;
-} */
+.main_div{
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
 
 .shareLink{
     font-size: 68px;
@@ -110,10 +111,11 @@ body{
     flex-direction: row;
     align-items: center;
     overflow-x: auto;
-    height: 400px;
+    height: 273px;
     padding: 0px 1rem 0px 1rem ;
 }
 .guest_avatar_div__profile{
+    flex:0 0 auto;
     font-family: sans-serif;
     text-align: center;
     max-width: 200px;

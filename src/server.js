@@ -84,11 +84,11 @@ wsServer.on("connection",(socket)=>{
     });
 });
 
-const peerServer = ExpressPeerServer(httpServer, {
-    debug: true,
-});
+// const peerServer = ExpressPeerServer(httpServer, {
+//     debug: true,
+// });
 
-app.use('/peerServer', peerServer);
+// app.use('/peerServer', peerServer);
 
 
 httpServer.listen(3000,()=>{

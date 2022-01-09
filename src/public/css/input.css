@@ -1,3 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.font-jua{
+    font-family: 'Jua', sans-serif;
+}
+.dm-transition{
+    @apply transition ease-linear delay-200
+}

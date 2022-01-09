@@ -14,60 +14,61 @@
         const KakaoApi="<%= KakaoApi %>";
     </script>
 </head>
-<body class="bg-stone-300" onbeforeunload="return winClose()">
-    <!-- <div class="header flex justify-center items-center bg-cyan-900">
-        <p class="text-center">테스트</p>
-    </div> -->
-        <div class="main_div bg-neutral-100 h-screen">
-            <main class="main_content">
+<body class="bg-neutral-100  h-full dark:bg-gray-700 dm-transition" onbeforeunload="return winClose()">
+        <button onclick="darkMode()">버튼</button>
+        <div class="main_div flex justify-center items-center h-screen">
+            <main class="main_content dark:bg-gray-400 dm-transition">
                 <div class="avatar_div">
-                    <h3 class="my_avatar_title text-slate-500">나의 정보</h3>
+                    <h3 class="my_avatar_title text-slate-500 dark:text-white dm-transition">나의 정보</h3>
                     <div class="my_avatar_div">
-                        <div class="my_avatar_div__profile">
+                        <div class="my_avatar_div__profile dark:bg-white dm-transition">
                             <img id="my_avatar_img" class="my_avatar_img" src="" alt="" srcset="">
                             <div class="my_avatar_div__profile__title"></div>
                         </div>
                     </div>
-                    <div class="sharBtn_div flex justify-center items-center">
-                        <div>
+                    <div class="text-center text-base my-3">
+                        <p class="font-jua text-3xl dark:text-white dm-transition">링크 공유</p>
+                    </div>
+                    <div class="sharBtn_div flex justify-center items-center my-3">
+                        <div class="mx-3">
                             <a id="btnKakao" href="javascript:shareKakao()">
                                 <img alt="카카오톡 공유 버튼" src="/public/img/kakaolink_btn.png"/>
                             </a>
                         </div>
-                        <div>
+                        <div class="mx-3">
                             <a id="telegram_btn" href="javascript:shareTelegram()">
                                 <img src="/public/img/telegram_ico.png" alt="텔레그램 공유 버튼" srcset="">
                             </a>
                         </div>
-                        <div>
+                        <div class="mx-3"> 
                             <span alt="공유링크 복사" class="material-icons shareLink" onclick="sharUrl()">
                                 link
                             </span>
                         </div>
                     </div>
-                    <h3 class="guest_avatar_title text-center text-slate-500">접속 유저</h4>
+                    <h3 class="guest_avatar_title text-center text-slate-500 my-5 dark:text-white dm-transition">접속 유저</h4>
                     <div class="none_guest_div">
                         <span class="material-icons">
                             person_off
                         </span>
-                        <p class="text-center text-slate-500">접속한 유저가 없습니다.</p>       
+                        <p class="text-center text-slate-500 my-5 dark:text-white dm-transition">접속한 유저가 없습니다.</p>       
                     </div>
                     
                     <div class="guest_avatar_div">
                     </div>
                     
-                    <div style="display: none;" class="file-progress_bar w-full bg-gray-200 rounded-full dark:bg-gray-700">
+                    <div style="display: none;" class="file-progress_bar w-full bg-gray-200 rounded-full dark:bg-gray-700 dm-transition">
                         <div class="file-current-progress bg-blue-600 text-xs font-medium text-blue-100 text-center p-0.5 leading-none rounded-full" style="width: 45%"> 45%</div>
                     </div>
 
-                    <h3 class="file-list-title text-center text-slate-500">파일 리스트</h3>
+                    <h3 class="file-list-title text-center text-slate-500 my-3 text-2xl dark:text-white dm-transition">파일 리스트</h3>
                     <ul id="fileUl" class="file_ul"></ul>
                     
-                    <div class="none_file_div">
+                    <div class="none_file_div my-3">
                         <span class="material-icons none_file_div__none-icon">
                             folder_off
                         </span>
-                        <p class="text-center text-slate-500">전송 받은 파일이 없습니다.</p>     
+                        <p class="text-center text-slate-500 mt-4 dark:text-white dm-transition">전송 받은 파일이 없습니다.</p>     
                     </div>
                 </div>
             </main>
@@ -79,12 +80,10 @@
     <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js" defer></script>
     <script src="/socket.io/socket.io.js" defer></script>
     <script src="/public/js/jszip/jszip.min.js" defer></script>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/gh/eligrey/Blob.js/Blob.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/streamsaver@2.0.3/StreamSaver.min.js" defer></script> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.js" defer></script>
     <script src="/public/js/app.js" defer></script>
     <script src="/public/js/kakao/kakao.min.js" defer></script>
     <script src="/public/js/sns.js" defer></script>
+    <script src="/public/js/darkMode.js" defer></script>
 </body>
 </html>

@@ -1,9 +1,7 @@
-const socket=io("ws://localhost:3000",{
-    transports:["polling"]
-});
+const socket=io();
 const myPeer=new Peer(undefined,{
     host:'localhost',
-    port:'3000',
+    port:'3001',
     path:'/peerServer',
     config:{'iceServers':[
         { url: 'stun:stun.l.google.com:19302' },
@@ -340,3 +338,5 @@ function file_progress(current_file_chuck){
 
     console.log(`percentComplete:${percentComplete}%`);
 }
+
+
