@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="https://unpkg.com/mvp.css">
+    <!-- <link rel="stylesheet" href="https://unpkg.com/mvp.css"> -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/public/css/index.css">
     <!-- <script src="https://cdn.tailwindcss.com/"></script> -->
@@ -15,8 +15,22 @@
     </script>
 </head>
 <body class="bg-neutral-100  h-full dark:bg-gray-700 dm-transition" onbeforeunload="return winClose()">
-        <button onclick="darkMode()">버튼</button>
-        <div class="main_div flex justify-center items-center h-screen">
+        <header class="flex items-center justify-between mb-4 bg-white opacity-80 border border-solid border-t-0 border-l-0 border-r-0 border-b-1 dark:bg-gray-700 dm-transition border-gray-300/10 ">
+            <div class="flex justify-center items-center">
+                <img src="/public/img/logo.png" alt="" srcset="" class="ml-4" style="width: 60px;">
+                <p class="font-jua text-4xl dark:text-white">PeerShare</p>
+            </div>
+            <div class="mr-4"> 
+                <input type="checkbox" class="checkbox" id="checkbox" onclick="handleDarkMode(this)">
+                <label for="checkbox" class="dark_mod_label">
+                    <span class="material-icons fas fa-moon">nightlight</span>
+                    <span class="material-icons fas fa-sun">light_mode</span>
+                    <div class="dark_mod_ball"></div>
+                </label>
+            </div>
+        </header>
+
+        <div class="main_div flex justify-center items-center">
             <main class="main_content dark:bg-gray-400 dm-transition">
                 <div class="avatar_div">
                     <h3 class="my_avatar_title text-slate-500 dark:text-white dm-transition">나의 정보</h3>
