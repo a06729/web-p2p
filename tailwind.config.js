@@ -4,7 +4,11 @@ module.exports = {
   darkMode: 'class',
   content: ["./src/**/*.ejs"],
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        mobile:{'max': '480px'}
+      }
+    },
   },
   corePlugins: {
     preflight: false,

@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- <link rel="stylesheet" href="https://unpkg.com/mvp.css"> -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/public/css/index.css">
     <!-- <script src="https://cdn.tailwindcss.com/"></script> -->
+    <link rel="icon" href="/public/img/icon/logo.ico">
     <title>Document</title>
     <script>
         const ROOM_ID="<%= roomId %>";
         const KakaoApi="<%= KakaoApi %>";
     </script>
 </head>
-<body class="bg-neutral-100  h-full dark:bg-gray-700 dm-transition" onbeforeunload="return winClose()">
+<body class= "bg-neutral-100 dark:bg-gray-700 dm-transition" onbeforeunload="return winClose()">
         <header class="flex items-center justify-between mb-4 bg-white opacity-80 border border-solid border-t-0 border-l-0 border-r-0 border-b-1 dark:bg-gray-700 dm-transition border-gray-300/10 ">
             <div class="flex justify-center items-center">
-                <img src="/public/img/logo.png" alt="" srcset="" class="ml-4" style="width: 60px;">
-                <p class="font-jua text-4xl dark:text-white">PeerShare</p>
+                <a href="/">
+                    <img src="/public/img/logo.png" alt="" srcset="" class="ml-4" style="width: 60px;">
+                </a>
+                <p class="font-jua text-4xl"><a href="/" class="no-underline text-black dark:text-white dm-transition">PeerShare</a></p>
             </div>
             <div class="mr-4"> 
                 <input type="checkbox" class="checkbox" id="checkbox" onclick="handleDarkMode(this)">
@@ -30,7 +33,7 @@
             </div>
         </header>
 
-        <div class="main_div flex justify-center items-center">
+        <div class="main_div flex justify-center items-center mb-4">
             <main class="main_content dark:bg-gray-400 dm-transition">
                 <div class="avatar_div">
                     <h3 class="my_avatar_title text-slate-500 dark:text-white dm-transition">나의 정보</h3>
@@ -76,7 +79,28 @@
                     </div>
 
                     <h3 class="file-list-title text-center text-slate-500 my-3 text-2xl dark:text-white dm-transition">파일 리스트</h3>
-                    <ul id="fileUl" class="file_ul"></ul>
+                    <ul id="fileUl" class="file_ul">
+                        <!-- <li> 
+                            <div class="flex justify-center items-center">
+                                <a href="blob:http://localhost:3000/66bff7eb-356f-4f73-92e1-edafc232bfd8" target="_blank" class="text-2xl no-underline dm-transition mobile:w-3/6 text-black dark:text-white">
+                                    <div class="file-name truncate">
+                                        5933160d2b734175fd7e7adbeb894fc1b4a02f08.gif
+                                    </div>
+                                </a>
+                                <span class="material-icons text-[50px] dark:text-blue-700">download</span>
+                            </div>
+                        </li>
+                        <li> 
+                            <div class="flex justify-center items-center">
+                                <a href="blob:http://localhost:3000/66bff7eb-356f-4f73-92e1-edafc232bfd8" target="_blank" class="text-2xl no-underline dm-transition mobile:w-3/6 text-black dark:text-white">
+                                    <div class="file-name truncate">
+                                        5933160d2b734175fd7e7adbeb894fc1b4a02f08.gif
+                                    </div>
+                                </a>
+                                <span class="material-icons text-[50px] dark:text-blue-700">download</span>
+                            </div>
+                        </li> -->
+                    </ul>
                     
                     <div class="none_file_div my-3">
                         <span class="material-icons none_file_div__none-icon">

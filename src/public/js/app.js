@@ -115,7 +115,7 @@ function addGuestAvatar(userList){
         const guest_avatar_file_input_el=document.createElement("input");
 
         if(obj['peerId']!=peerId){
-            guest_avatar_profile_el.className="guest_avatar_div__profile";
+            guest_avatar_profile_el.className="guest_avatar_div__profile dark:bg-white dm-transition";
             
             guest_avatar_title_el.className="guest_avatar_div__profile__title";
             guest_avatar_title_el.innerText=`식별값:${obj['peerId']}`;
@@ -277,7 +277,7 @@ function onReadAsDataURL(event, text) {
         onReadAsDataURL(null, remainingDataURL); // continue transmitting
     }, 500);
 }
-
+//파일 겹칠수 있을때 쓰는 랜덤 이름 생성 함수
 function randomFileId() {
     return Math.random().toString(36).substr(2, 16);
 }
@@ -288,20 +288,35 @@ function saveToDisk(fileUrl, fileName) {
     const li = document.createElement("li");
     const none_file_div_el=document.querySelector(".none_file_div");
 
+    li.className="flex justify-center items-center";
+
     if(none_file_div_el.childElementCount>0){
         none_file_div_el.style.display="none";
     }
+    
     const url=dataURItoBlob(fileUrl);
     const save = document.createElement('a');
+    const download_icon_span = document.createElement("span");
+    const file_name_div=document.createElement("div");
+    
     save.href =URL.createObjectURL(url);
     save.target = '_blank';
+    save.className="text-2xl w-3/6 no-underline dm-transition text-black  mobile:w-3/6 dark:text-white";
     // save.download = fileName || fileUrl;
     save.addEventListener("click",file_server_download);
 
+    file_name_div.className="truncate";
+    file_name_div.innerText=fileName;
 
-    save.innerText=fileName;
+    save.append(file_name_div);
+    // save.innerText=fileName;
+
+    download_icon_span.className="material-icons text-[50px] dark:text-blue-700";
+    download_icon_span.innerText="download";
+    download_icon_span.addEventListener("click",file_download_icon_click);
 
     li.append(save);
+    li.append(download_icon_span);
 
     ul.append(li);
 }
@@ -323,9 +338,19 @@ function dataURItoBlob(dataURI) {
 //파일 다운로드 함수
 function file_server_download(event){
     event.preventDefault();
-    const filename=event.target.text;
-    const blob=event.target.href;
+    
+    //a 태그의 href 값을 가져오는 변수
+    const a_href=event.target.parentElement.href;
+    //a 태그에 있는 div가 파일명이므로 그 텍스트를 가져온다.
+    const filename=event.target.innerText;
+
+    const blob=a_href;
     saveAs(blob, filename);
+}
+function file_download_icon_click(event){
+    console.log(event.target.previousSibling);
+    const file_download_tag=event.target.previousSibling.firstChild;
+    file_download_tag.click();
 }
 // 파일 전송 진행률을 계산해주는 함수
 function file_progress(current_file_chuck){
