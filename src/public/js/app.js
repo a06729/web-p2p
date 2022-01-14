@@ -1,3 +1,5 @@
+// const { file } = require("jszip");
+
 const socket=io();
 const myPeer=new Peer(undefined,{
     host:'localhost',
@@ -297,6 +299,7 @@ function saveToDisk(fileUrl, fileName) {
     const url=dataURItoBlob(fileUrl);
     const save = document.createElement('a');
     const download_icon_span = document.createElement("span");
+    const delete_icon_span= document.createElement("span");
     const file_name_div=document.createElement("div");
     
     save.href =URL.createObjectURL(url);
@@ -315,8 +318,13 @@ function saveToDisk(fileUrl, fileName) {
     download_icon_span.innerText="download";
     download_icon_span.addEventListener("click",file_download_icon_click);
 
+    delete_icon_span.className="material-icons text-[50px] text-red-500";
+    delete_icon_span.innerText="delete_forever";
+    delete_icon_span.addEventListener("click",file_delete_icon_click);
+
     li.append(save);
     li.append(download_icon_span);
+    li.append(delete_icon_span);
 
     ul.append(li);
 }
@@ -347,11 +355,32 @@ function file_server_download(event){
     const blob=a_href;
     saveAs(blob, filename);
 }
+
+//파일 다운로드 아이콘 클릭시 사용되는 함수
 function file_download_icon_click(event){
-    console.log(event.target.previousSibling);
+    // console.log(event.target.previousSibling);
     const file_download_tag=event.target.previousSibling.firstChild;
     file_download_tag.click();
 }
+//파일 삭제 아이콘 클릭시 사용되는 함수
+function file_delete_icon_click(event){
+    const file_li_tag=event.path[1];
+    const file_href=file_li_tag.querySelector("a").href;
+    const file_ul_tag=document.querySelector("#fileUl");
+    
+    window.URL.revokeObjectURL(file_href);
+    file_li_tag.remove();
+  
+    // console.log(file_ul_tag_Count);
+
+    if(file_ul_tag.childElementCount==0){
+        const none_file_div=document.querySelector(".none_file_div");
+        none_file_div.style.display="";
+    }    
+    // console.log(event);
+}
+
+
 // 파일 전송 진행률을 계산해주는 함수
 function file_progress(current_file_chuck){
     let current_file_size=current_file_chuck.length;
