@@ -3,7 +3,6 @@
 const socket=io();
 const myPeer=new Peer(undefined,{
     host:'peershare-web.herokuapp.com',
-    port:'443',
     path:'/peerServer',
     secure: true,
     config:{'iceServers':[
