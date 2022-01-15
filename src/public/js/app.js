@@ -2,9 +2,10 @@
 
 const socket=io();
 const myPeer=new Peer(undefined,{
-    host:'https://peershare-web.herokuapp.com',
-    port:'3001',
+    host:'peershare-web.herokuapp.com',
+    port:'443',
     path:'/peerServer',
+    secure: true,
     config:{'iceServers':[
         { url: 'stun:stun.l.google.com:19302' },
     ]},
