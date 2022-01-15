@@ -2,8 +2,7 @@
 
 const socket=io();
 const myPeer=new Peer(undefined,{
-    host:'peershare-web.herokuapp.com',
-    path:'/peerServer',
+    host:'perrjs-server.herokuapp.com',
     secure: true,
     config:{'iceServers':[
         { url: 'stun:stun.l.google.com:19302' },

@@ -7,7 +7,7 @@
     "dev": "nodemon",
     "build:css": "postcss src/public/css/input.css -o src/public/css/styles.css",
     "css": "npx tailwindcss -i ./src/public/css/input.css -o ./src/public/css/styles.css --watch",
-    "start": "concurrently \"babel-node src/server.js\" \"peerjs --port 9000 --path /peerServer\""
+    "start": "babel-node src/server.js"
   },
   "author": "",
   "license": "ISC",
