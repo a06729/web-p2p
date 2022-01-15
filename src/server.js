@@ -9,7 +9,7 @@ const {v4:uuidV4}=require("uuid");
 const { ExpressPeerServer } = require('peer');
 
 require('dotenv').config();
-
+const port = process.env.PORT || 8080;
 const app=express(); 
 
 app.set("view engine","ejs");
@@ -91,6 +91,6 @@ wsServer.on("connection",(socket)=>{
 // app.use('/peerServer', peerServer);
 
 
-httpServer.listen(3000,()=>{
+httpServer.listen(port,()=>{
     console.log("서버 시작");
 });
