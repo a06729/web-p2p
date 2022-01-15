@@ -22,10 +22,17 @@ let conn;
 //fireBase db의 고유 글 번호
 let fireDocId;
 
+//파일 이름 저장 변수
 let file_name;
+
+//파일이 로드가 다 되었을때 파일 크기를 저장하는 변수
 let file_size;
-// let current_file_size=0;
-// let percentComplete 
+
+//보내진 청크 크기를 저장 하는 변수
+let current_file_size=0;
+
+//현재 파일 전송이 진행된 퍼센트를 저장하는 변수
+let percentComplete=0;
 
 let arrayToStoreChunks = [];
 
@@ -150,16 +157,15 @@ function addGuestAvatar(userList){
                         reader.readAsDataURL(content);
                         reader.onload = onReadAsDataURL;
                     });
-                    console.log("파일이 1개 이상입니다.");
+                    // console.log("파일이 1개 이상입니다.");
                 }else{
                     const reader = new window.FileReader();
 
                     const file=event.target.files[0];
                     file_name=file.name;
-                    
                     reader.readAsDataURL(file);
                     reader.onload = onReadAsDataURL;
-                    console.log(file);
+
                 }
             }
 
@@ -235,27 +241,30 @@ function click_file_icon(event){
 
 
 function onReadAsDataURL(event, text) {
-    var data = {}; // data object to transmit over data channel
+    let data = {}; // data object to transmit over data channel
     console.log(`file_name:${file_name}`);
 
-    if (event) text = event.target.result; // on first invocation
-    if (text.length > chunkLength) {
+    if (event){
+        text = event.target.result; // on first invocation  
+        //파일이 로드 되었을때 파일 크기를 file_size에 저장
         file_size=text.length;
+    } 
+        
+    if (text.length > chunkLength) {
         data.message = text.slice(0, chunkLength); // getting chunk using predefined chunk length
         //파일 청크를 보내서 진행률 계산하는 함수
-        file_progress(data.message);
+        file_progress(data.message.length);
 
     } else {
         data.message = text;
         data.last = true;
         data.file_name=file_name;
-        file_size=text.length;
-        
         //파일 청크를 보내서 진행률 계산하는 함수
-        file_progress(text);
+        file_progress(data.message.length);
         
         //percentComplete을 0으로 초기화를 해야 진행률을 0으로 초기화 할수 있다.
         percentComplete=0;
+        current_file_size=0
 
         //전송이 완료되었으므로 파일 보내기 아이콘을 다시 보이게 변경한다.
         const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
@@ -273,7 +282,7 @@ function onReadAsDataURL(event, text) {
     // console.log(`data:${JSON.stringify(data)}`);
     conn.send(JSON.stringify(data)); // use JSON.stringify for chrome!
 
-    var remainingDataURL = text.slice(data.message.length);
+    let remainingDataURL = text.slice(data.message.length);
     if (remainingDataURL.length) setTimeout(function () {
         onReadAsDataURL(null, remainingDataURL); // continue transmitting
     }, 500);
@@ -382,14 +391,22 @@ function file_delete_icon_click(event){
 
 // 파일 전송 진행률을 계산해주는 함수
 function file_progress(current_file_chuck){
-    let current_file_size=current_file_chuck.length;
-    let percentComplete = Math.floor((current_file_size / file_size)*100);
+    console.log(`file_size:${file_size}`);
+
+    //현재 어디 청크까지 표시하는 변수
+    current_file_size=current_file_size+current_file_chuck;
+    //현재 어디까지 파일이 파일이 보내졌는지 보여주는 퍼센트
+    percentComplete =Math.floor((current_file_size / file_size)*100);
+
+    // console.log(`current_file_size:${current_file_size}`);
 
     file_progress_bar.style.display="";
     current_progress.style.width=`${percentComplete}%`;
     current_progress.innerText=`${percentComplete}%`;
 
-    console.log(`percentComplete:${percentComplete}%`);
+    // console.log(`percentComplete:${percentComplete}%`);
+    
+    
 }
 
 
