@@ -5,7 +5,7 @@ const myPeer=new Peer(undefined,{
     host:'perrjs-server.herokuapp.com',
     secure: true,
     config:{'iceServers':[
-        { url: 'stun:stun.l.google.com:19302' },
+        { url: "stun:stun1.l.google.com:19302" },
     ]},
 });
 
@@ -20,7 +20,7 @@ let peerId;
 let conn;
 
 //fireBase db의 고유 글 번호
-let fireDocId;
+// let fireDocId;
 
 //파일 이름 저장 변수
 let file_name;
@@ -34,7 +34,7 @@ let current_file_size=0;
 //현재 파일 전송이 진행된 퍼센트를 저장하는 변수
 let percentComplete=0;
 
-let arrayToStoreChunks = [];
+// let arrayToStoreChunks = [];
 
 //청크 사이즈
 const chunkLength = 1024*1024*1;
@@ -59,7 +59,7 @@ const avatar_api_url="https://avatars.dicebear.com/api/bottts";
 myPeer.on('open',(id)=>{
     const avatar_img=document.getElementById("my_avatar_img");
     const avatar_avatar_peerId=document.querySelector(".my_avatar_div__profile__title");
-    socket.emit("join-room",ROOM_ID,id,addFireDocId);
+    socket.emit("join-room",ROOM_ID,id);
     peerId=id;
     avatar_img.src=`${avatar_api_url}/${peerId}.svg`;
     avatar_img.title=peerId;
@@ -70,6 +70,7 @@ myPeer.on('open',(id)=>{
 
 myPeer.on('connection',function(dataConnection){
     dataConnection.on("open",function(){
+        let arrayToStoreChunks = [];
         dataConnection.on('data',function(data){
             let file_data = JSON.parse(data);
             arrayToStoreChunks.push(file_data.message); // pushing chunks in array
@@ -182,9 +183,9 @@ function addGuestAvatar(userList){
             guest_avatar_div.appendChild(guest_avatar_profile_el);
 
         }
-        if(obj['peerId']===peerId){
-            fireDocId=obj['id'];
-        }
+        // if(obj['peerId']===peerId){
+        //     fireDocId=obj['id'];
+        // }
     });
     
     //접속유저가 없으면 유저창을 안보이게 그리고 유저가 없는 창을 보이게 한다.
@@ -210,15 +211,15 @@ function addGuestAvatar(userList){
 //소켓 서버에 접속시 fireBase db에서 글에 고유값을 가져옵니다.
 //이것이 있어야 fireBase db에 있는 room에 접속된 유저를 식별하고
 //브라우저 종료시 삭제가 가능합니다.
-function addFireDocId(userData){
-    fireDocId=userData['id'];
-}
+// function addFireDocId(userData){
+//     fireDocId=userData['id'];
+// }
 
-//브라우저 종료시 실행되는 함수
-function winClose(){
-    //브라우저가 종료되면 서버에 user-leave 함수를 실행
-    socket.emit('user-leave',ROOM_ID,peerId,fireDocId);
-}
+// //브라우저 종료시 실행되는 함수
+// function winClose(){
+//     //브라우저가 종료되면 서버에 user-leave 함수를 실행
+//     socket.emit('user-leave',ROOM_ID,peerId,fireDocId);
+// }
 
 function click_file_icon(event){
     const id=event.target.title;

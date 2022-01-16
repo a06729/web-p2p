@@ -33,9 +33,10 @@ const httpServer=http.createServer(app);
 
 const wsServer=SocketIO(httpServer);
 wsServer.on("connection",(socket)=>{    
-    socket.on("join-room",async(roomId,peerId,done)=>{
+    socket.on("join-room",async(roomId,peerId)=>{
         let userlist=[];
         await dbService.collection("room").add({
+            socketId:socket.id,
             roomId:roomId,
             peerId:peerId
         });
@@ -44,12 +45,11 @@ wsServer.on("connection",(socket)=>{
         snapshot.forEach(doc=>{
             console.log(doc.data());
             const userObj={
-                id:doc.id,
                 ...doc.data()
             }
             userlist.push(userObj);
         });
-        done(userlist[userlist.length-1]);
+        // done(userlist[userlist.length-1]);
 
         socket.join(roomId);
         socket.to(roomId).emit('user-connected',userlist);
@@ -63,24 +63,49 @@ wsServer.on("connection",(socket)=>{
         
     });
 
-    socket.on('user-leave',async(roomId,peerId,fireDocId)=>{
-        let userlist=[];
-        console.log(`fireDocId:${fireDocId}`);
-        console.log(`유저 ${peerId} 가 떠났습니다.`);
-        await dbService.collection(`room`).doc(fireDocId).delete();
+    // socket.on('user-leave',async(roomId,peerId,fireDocId)=>{
+    //     let userlist=[];
+    //     console.log(`fireDocId:${fireDocId}`);
+    //     console.log(`유저 ${peerId} 가 떠났습니다.`);
+    //     await dbService.collection(`room`).doc(fireDocId).delete();
         
-        const roomRef=dbService.collection('room');
-        const snapshot=await roomRef.where('roomId','==',roomId).get();
-        snapshot.forEach(doc=>{
-            console.log(doc.data());
-            const userObj={
-                id:doc.id,
-                ...doc.data()
-            }
-            userlist.push(userObj);
+    //     const roomRef=dbService.collection('room');
+    //     const snapshot=await roomRef.where('roomId','==',roomId).get();
+    //     snapshot.forEach(doc=>{
+    //         console.log(doc.data());
+    //         const userObj={
+    //             id:doc.id,
+    //             ...doc.data()
+    //         }
+    //         userlist.push(userObj);
+    //     });
+    //     socket.to(roomId).emit("user-leave",userlist);
+    //     socket.leave(roomId);
+    // });
+    socket.on("disconnect",async()=>{
+        // console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
+        await dbService.collection(`room`)
+        .where("socketId","==",socket.id)
+        .get()
+        .then((qs)=>{
+            qs.forEach(async (doc)=> {
+                let userlist=[];
+                const doc_obj=doc.data();
+                // console.log(`doc_obj:${doc_obj.roomId}`);
+                await dbService.collection(`room`).doc(doc.id).delete();
+                const roomRef=dbService.collection('room');
+                const snapshot=await roomRef.where('roomId','==',doc_obj.roomId).get();
+                snapshot.forEach(doc=>{
+                    const userObj={
+                        id:doc.id,
+                        ...doc.data()
+                    }
+                    userlist.push(userObj);
+                });
+                socket.to(doc_obj.roomId).emit("user-leave",userlist);
+                // console.log(doc.id, " => ", doc.data());
+            });;
         });
-        socket.to(roomId).emit("user-leave",userlist);
-        socket.leave(roomId);
     });
 });
 
