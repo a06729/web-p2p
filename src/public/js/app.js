@@ -1,8 +1,8 @@
 // const { file } = require("jszip");
-
 const socket=io();
 const myPeer=new Peer(undefined,{
-    host:'perrjs-server.herokuapp.com',
+    host:'custom-peerserver.herokuapp.com',
+    path:'/peerjs/myapp',
     secure: true,
     config:{'iceServers':[
         { url: "stun:stun1.l.google.com:19302" },
@@ -82,6 +82,10 @@ myPeer.on('connection',function(dataConnection){
     });
 });
 
+myPeer.on('disconnected', function() {
+    console.log("peerjs 서버에서 연결 종료");
+    myPeer.reconnect();
+});
 
 //peerA(크롬 브라우저)
 socket.on("user-connected",(userlist)=>{   

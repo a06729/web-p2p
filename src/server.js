@@ -6,7 +6,7 @@ import dbService from "./fbase/firebase";
 
 
 const {v4:uuidV4}=require("uuid");
-const { ExpressPeerServer } = require('peer');
+// const { ExpressPeerServer } = require('peer');
 
 require('dotenv').config();
 const port = process.env.PORT || 8080;
@@ -18,11 +18,9 @@ app.set("views",__dirname+"/public/views");
 app.use("/public",express.static(__dirname+"/public"));
 
 app.get("/",(req,res)=>{
-    res.redirect(`/${uuidV4()}`);
-    
+    res.redirect(`/${uuidV4()}`);  
 });
 app.get("/:room",(req,res)=>{
-    console.log(process.env.KakaoApi);
     res.render('index',{
         roomId:req.params.room,
         KakaoApi:process.env.KakaoApi
@@ -31,8 +29,12 @@ app.get("/:room",(req,res)=>{
 
 const httpServer=http.createServer(app);
 
-const wsServer=SocketIO(httpServer);
-wsServer.on("connection",(socket)=>{    
+const wsServer=SocketIO(httpServer,{'pingInterval': 45000});
+wsServer.on("connection",(socket)=>{  
+    console.log(`접속한 소켓 아이디:${socket.id}`);
+    socket.prependAny((eventName, ...args) => {
+        console.log(`eventName:${eventName}`);
+    });
     socket.on("join-room",async(roomId,peerId)=>{
         let userlist=[];
         await dbService.collection("room").add({
@@ -82,8 +84,9 @@ wsServer.on("connection",(socket)=>{
     //     socket.to(roomId).emit("user-leave",userlist);
     //     socket.leave(roomId);
     // });
-    socket.on("disconnect",async()=>{
-        // console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
+    socket.on("disconnect",async(reason)=>{
+        console.log(`reason:${reason}`);
+        console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
         await dbService.collection(`room`)
         .where("socketId","==",socket.id)
         .get()

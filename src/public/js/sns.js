@@ -31,7 +31,7 @@ function sharUrl(){
     navigator.clipboard.writeText(url)
     .then(() => {
         console.log("클립보드에 url 저장");
-        alert("url 복사 완료");
+        alert("초대장 복사 완료");
     }).catch(err => {
         console.log('Something went wrong', err);
     })

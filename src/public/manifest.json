@@ -1,0 +1,47 @@
+{
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "name": "PeerShare",
+  "orientation": "any",
+  "scope": ".",
+  "short_name": "PeerShare",
+  "start_url": "./",
+  "theme_color": "#ffffff",
+  "icons": [
+      {
+        "src": "/public/img/icon/pwa/icon-512x512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+      },
+      {
+        "src": "/public/img/icon/pwa/icon-192x192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+      },
+      {
+        "src": "/public/img/icon/pwa/icon-167x167.png",
+        "type": "image/png",
+        "sizes": "167x167"
+      },
+      {
+        "src": "/public/img/icon/pwa/icon-144x144.png",
+        "type": "image/png",
+        "sizes": "144x144"
+      },
+      {
+        "src": "/public/img/icon/pwa/icon-100x100.png",
+        "type": "image/png",
+        "sizes": "100x100"
+      },
+      {
+        "src": "/public/img/icon/pwa/icon-72x72.png",
+        "type": "image/png",
+        "sizes": "72x72"
+      },
+      {
+        "src": "/public/img/icon/pwa/icon-50x50.png",
+        "type": "image/png",
+        "sizes": "50x50"
+      }
+    ]
+}
