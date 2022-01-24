@@ -55,6 +55,13 @@ const current_progress=document.querySelector(".file-current-progress");
 //아바타에 들어가는 이미지 api 주소 값 입니다.
 const avatar_api_url="https://avatars.dicebear.com/api/bottts";
 
+const clickEvent=(function() {
+    if ('ontouchstart' in document.documentElement === true) {
+      return 'touchstart';
+    } else {
+      return 'click';
+    }
+  })();
 
 myPeer.on('open',(id)=>{
     const avatar_img=document.getElementById("my_avatar_img");
@@ -333,8 +340,8 @@ function saveToDisk(fileUrl, fileName) {
 
     delete_icon_span.className="material-icons text-[50px] text-red-500";
     delete_icon_span.innerText="delete_forever";
-    delete_icon_span.addEventListener("click",file_delete_icon_click);
-
+    delete_icon_span.onclick=file_delete_icon_click;
+    
     li.append(save);
     li.append(download_icon_span);
     li.append(delete_icon_span);
@@ -377,20 +384,20 @@ function file_download_icon_click(event){
 }
 //파일 삭제 아이콘 클릭시 사용되는 함수
 function file_delete_icon_click(event){
-    const file_li_tag=event.path[1];
-    const file_href=file_li_tag.querySelector("a").href;
-    const file_ul_tag=document.querySelector("#fileUl");
-    
-    window.URL.revokeObjectURL(file_href);
-    file_li_tag.remove();
-  
-    // console.log(file_ul_tag_Count);
-
-    if(file_ul_tag.childElementCount==0){
-        const none_file_div=document.querySelector(".none_file_div");
-        none_file_div.style.display="";
-    }    
-    // console.log(event);
+    try{
+        const file_li_tag=event.target.parentElement;
+        const file_href=file_li_tag.querySelector("a").href;
+        const file_ul_tag=document.querySelector("#fileUl");
+        URL.revokeObjectURL(file_href);
+        file_li_tag.remove();
+        if(file_ul_tag.childElementCount==0){
+            const none_file_div=document.querySelector(".none_file_div");
+            none_file_div.style.display="";
+        }    
+        // console.log(event);
+    }catch(err){
+        alert(err);
+    };
 }
 
 
