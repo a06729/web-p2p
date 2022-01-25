@@ -1,21 +1,17 @@
-
-
 function shareKakao(){
-    Kakao.init(KakaoApi);
     const url=location.href;
-    Kakao.Link.createDefaultButton({
-        container: '#btnKakao', // 카카오공유버튼ID
+    Kakao.Link.sendDefault({
         objectType: 'feed',
         content: {
-          title: "p2p 공유", // 보여질 제목
-          description: "p2p 공유 링크", // 보여질 설명
-          imageUrl: `${url}`, // 콘텐츠 URL
-          link: {
-             mobileWebUrl: `${url}`,
-             webUrl: `${url}`
-          }
+            title: "p2p 공유", // 보여질 제목
+            description: "p2p 공유 링크", // 보여질 설명
+            imageUrl: `${url}`, // 콘텐츠 URL
+            link: {
+                mobileWebUrl: `${url}`,
+                webUrl: `${url}`
+            }
         }
-      });
+    });
 }
 
 function shareTelegram(){
@@ -36,3 +32,5 @@ function sharUrl(){
         console.log('Something went wrong', err);
     })
 }
+
+export default {sharUrl,shareTelegram,shareKakao};

@@ -1,13 +1,13 @@
-function darkMode(){
-    const teme_mode=localStorage.getItem("theme");
-    if(teme_mode=="light"){
-        document.documentElement.classList.add('dark');
-        localStorage.setItem("theme","dark");
-    }else{
-        document.documentElement.classList.remove('dark');
-        localStorage.setItem("theme","light");
-    }
-}
+// function modeSwitching(){
+//     const teme_mode=localStorage.getItem("theme");
+//     if(teme_mode=="light"){
+//         document.documentElement.classList.add('dark');
+//         localStorage.setItem("theme","dark");
+//     }else{
+//         document.documentElement.classList.remove('dark');
+//         localStorage.setItem("theme","light");
+//     }
+// }
 function handleDarkMode(event){
     if(event.checked==true){
         document.documentElement.classList.add('dark');
@@ -38,4 +38,6 @@ function darkModeInit(){
     }
 }
 
-darkModeInit();
+// darkModeInit();
+
+export default {handleDarkMode,darkModeInit};

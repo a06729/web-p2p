@@ -1,4 +1,18 @@
-// const { file } = require("jszip");
+import sns from "./sns.js";
+import darkMode from "./darkMode.js";
+import reset_css from "../css/reset.css";
+import index_css from "../css/index.css";
+import styles_css from "../css/styles.css";
+
+//window.함수이름 으로 설정해주여야 번들링 했을때 tag의 onclick을 인식한다.
+window.shareKakao = sns.shareKakao;
+window.shareTelegram = sns.shareTelegram;
+window.sharUrl = sns.sharUrl;
+window.handleDarkMode=darkMode.handleDarkMode;
+
+darkMode.darkModeInit();
+Kakao.init(KakaoApi);
+
 const socket=io();
 const myPeer=new Peer(undefined,{
     host:'custom-peerserver.herokuapp.com',
@@ -55,13 +69,13 @@ const current_progress=document.querySelector(".file-current-progress");
 //아바타에 들어가는 이미지 api 주소 값 입니다.
 const avatar_api_url="https://avatars.dicebear.com/api/bottts";
 
-const clickEvent=(function() {
-    if ('ontouchstart' in document.documentElement === true) {
-      return 'touchstart';
-    } else {
-      return 'click';
-    }
-  })();
+// const clickEvent=(function() {
+//     if ('ontouchstart' in document.documentElement === true) {
+//       return 'touchstart';
+//     } else {
+//       return 'click';
+//     }
+//   })();
 
 myPeer.on('open',(id)=>{
     const avatar_img=document.getElementById("my_avatar_img");
@@ -373,6 +387,7 @@ function file_server_download(event){
     const filename=event.target.innerText;
 
     const blob=a_href;
+
     saveAs(blob, filename);
 }
 
