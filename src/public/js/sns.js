@@ -8,7 +8,9 @@ function shareKakao(){
             imageUrl: `${url}`, // 콘텐츠 URL
             link: {
                 mobileWebUrl: `${url}`,
-                webUrl: `${url}`
+                webUrl: `${url}`,
+                iosExecutionParams: `${url}`,
+                androidExecParams: `${url}`,
             }
         }
     });
