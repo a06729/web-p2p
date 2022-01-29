@@ -52,16 +52,21 @@
 }
 
 .my_avatar_img{
-    width: 5rem;
+    width: 80px;
     height: 100px;
 }
 .my_avatar_div__profile{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction:column;
     font-family: sans-serif;
     text-align: center;
+    width: 200px;
+    height: 150px;
     max-width: 200px;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    padding: 20px;
-    margin-right: 10px;
+    padding: 10px;
     border-radius: 15px;
 }
 .avatar_div{
@@ -73,7 +78,6 @@
     font-family: 'Jua', sans-serif;
     text-align: center;
     font-size: 16px;
-    margin-bottom: 20px;
 }
 
 .my_avatar_title{

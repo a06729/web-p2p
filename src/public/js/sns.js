@@ -1,6 +1,7 @@
+import {Link} from './kakao/kakao';
 function shareKakao(){
     const url=location.href;
-    Kakao.Link.sendDefault({
+    Link.sendDefault({
         objectType: 'feed',
         content: {
             title: "p2p 공유", // 보여질 제목

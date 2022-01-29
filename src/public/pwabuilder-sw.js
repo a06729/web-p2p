@@ -2,15 +2,16 @@
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-const CACHE = "pwabuilder-page-v1";
+const CACHE = "pwabuilder-page-v2";
 
 // TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
 const offlineFallbackPage = [
   '/public/views/offline.html',
+  '/public/pwabuilder-sw.js',
   '/public/js/bundel/app-bundel.js',
   '/public/js/FileSaver.js',
   '/public/js/peerjs.js',
-  '/public/js/kakao/kakao.min.js',
+  '/public/js/kakao/kakao.js',
   '/public/js/jszip/jszip.min.js',
   '/public/img/kakaolink_btn.png',
   '/public/img/logo.png',

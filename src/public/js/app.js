@@ -1,17 +1,25 @@
 import sns from "./sns.js";
+import QRious from "./qrious.js";
 import darkMode from "./darkMode.js";
-import reset_css from "../css/reset.css";
-import index_css from "../css/index.css";
-import styles_css from "../css/styles.css";
+// import reset_css from "../css/reset.css";
 
 //window.함수이름 으로 설정해주여야 번들링 했을때 tag의 onclick을 인식한다.
 window.shareKakao = sns.shareKakao;
 window.shareTelegram = sns.shareTelegram;
 window.sharUrl = sns.sharUrl;
 window.handleDarkMode=darkMode.handleDarkMode;
+window.qr_gen=qr_ge;
 
 darkMode.darkModeInit();
 Kakao.init(KakaoApi);
+
+function qr_ge(){
+    let qr = new QRious({
+        element: document.getElementById('qr-code'),
+        size: 200,
+        value: `${window.location.href}`
+    });
+}
 
 const socket=io();
 const myPeer=new Peer(undefined,{
@@ -69,13 +77,13 @@ const current_progress=document.querySelector(".file-current-progress");
 //아바타에 들어가는 이미지 api 주소 값 입니다.
 const avatar_api_url="https://avatars.dicebear.com/api/bottts";
 
-// const clickEvent=(function() {
-//     if ('ontouchstart' in document.documentElement === true) {
-//       return 'touchstart';
-//     } else {
-//       return 'click';
-//     }
-//   })();
+const clickEvent=(function() {
+    if ('onTouchDown ' in document.documentElement === true) {
+      return 'onTouchDown';
+    } else {
+      return 'click';
+    }
+  })();
 
 myPeer.on('open',(id)=>{
     const avatar_img=document.getElementById("my_avatar_img");
@@ -86,7 +94,7 @@ myPeer.on('open',(id)=>{
     avatar_img.title=peerId;
     avatar_avatar_peerId.innerHTML=`식별값:${peerId}`;
 
-    guest_avatar_div.style.display="none";
+    // guest_avatar_div.style.display="none";
 });
 
 myPeer.on('connection',function(dataConnection){
@@ -105,6 +113,15 @@ myPeer.on('connection',function(dataConnection){
 
 myPeer.on('disconnected', function() {
     console.log("peerjs 서버에서 연결 종료");
+    //기존에 있는 게스트 img태그 전부 가져오기
+    const guest_avatar_div__profile_all=document.querySelectorAll(".guest_avatar_div__profile");
+    //접속할때 마다 게스트 아바타를 전부 리셋
+    guest_avatar_div__profile_all.forEach((guest)=>{
+        guest.remove();
+    });
+    guest_avatar_div.style.display="none";
+    none_guest_div.style.display="";
+
     myPeer.reconnect();
 });
 
@@ -330,17 +347,19 @@ function saveToDisk(fileUrl, fileName) {
         none_file_div_el.style.display="none";
     }
     
-    const url=dataURItoBlob(fileUrl);
+    // const url=dataURItoBlob(fileUrl);
+    const url=fileUrl;
     const save = document.createElement('a');
     const download_icon_span = document.createElement("span");
     const delete_icon_span= document.createElement("span");
     const file_name_div=document.createElement("div");
     
-    save.href =URL.createObjectURL(url);
+    save.href =url;
     save.target = '_blank';
     save.className="text-2xl w-3/6 no-underline dm-transition text-black  mobile:w-3/6 dark:text-white";
     // save.download = fileName || fileUrl;
-    save.addEventListener("click",file_server_download);
+    save.addEventListener(clickEvent,file_server_download);
+    // save.onclick=file_server_download;
 
     file_name_div.className="truncate";
     file_name_div.innerText=fileName;
@@ -350,7 +369,8 @@ function saveToDisk(fileUrl, fileName) {
 
     download_icon_span.className="material-icons text-[50px] dark:text-blue-700";
     download_icon_span.innerText="download";
-    download_icon_span.addEventListener("click",file_download_icon_click);
+    download_icon_span.addEventListener(clickEvent,file_download_icon_click);
+    // download_icon_span.onclick=file_download_icon_click;
 
     delete_icon_span.className="material-icons text-[50px] text-red-500";
     delete_icon_span.innerText="delete_forever";
@@ -373,27 +393,30 @@ function dataURItoBlob(dataURI) {
     for (let i = 0; i < byteString.length; i++) {
       ia[i] = byteString.charCodeAt(i);
     }
-    const blob = new Blob([ab], {type: mimeString});
-    return blob;
+    // const blob = new Blob([ab], {type: mimeString});
+    // return blob;
+    return URL.createObjectURL(new Blob([ab], {type: mimeString}));
 }
 
 //파일 다운로드 함수
 function file_server_download(event){
     event.preventDefault();
-    
     //a 태그의 href 값을 가져오는 변수
     const a_href=event.target.parentElement.href;
     //a 태그에 있는 div가 파일명이므로 그 텍스트를 가져온다.
     const filename=event.target.innerText;
 
-    const blob=a_href;
+    // const blob=dataURItoBlob(a_href);
+    const blob_url=dataURItoBlob(a_href);
 
-    saveAs(blob, filename);
+    saveAs(blob_url, filename);
+    window.URL.revokeObjectURL(blob_url);
+    // window.URL.revokeObjectURL(blob);
 }
 
 //파일 다운로드 아이콘 클릭시 사용되는 함수
 function file_download_icon_click(event){
-    // console.log(event.target.previousSibling);
+    event.preventDefault();
     const file_download_tag=event.target.previousSibling.firstChild;
     file_download_tag.click();
 }

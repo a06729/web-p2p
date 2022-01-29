@@ -29,7 +29,7 @@ app.get("/:room",(req,res)=>{
 
 const httpServer=http.createServer(app);
 
-const wsServer=SocketIO(httpServer,{'pingInterval': 45000});
+const wsServer=SocketIO(httpServer);
 wsServer.on("connection",(socket)=>{  
     console.log(`접속한 소켓 아이디:${socket.id}`);
     socket.prependAny((eventName, ...args) => {
