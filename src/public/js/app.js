@@ -215,7 +215,7 @@ function addGuestAvatar(userList){
             img_el.src=`${avatar_api_url}/${obj['peerId']}.svg `;
             img_el.className="guest_avatar_div__profile__img";
             img_el.title=obj['peerId'];
-            img_el.id=obj['id'];
+            img_el.id=obj['socketId'];
 
             guest_avatar_profile_el.appendChild(img_el);
             guest_avatar_profile_el.appendChild(guest_avatar_title_el);

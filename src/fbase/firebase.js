@@ -21,4 +21,5 @@ admin.initializeApp({
   databaseURL:"https://p2pFbase.firebaseio.com"
 });
 const dbService=admin.firestore();
+export const FieldValue=admin.firestore.FieldValue;
 export default dbService;

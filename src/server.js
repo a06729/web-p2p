@@ -1,8 +1,8 @@
-import express from "express";
+import express, { json } from "express";
 import ejs from "ejs";
 import http from "http";
 import SocketIO from "socket.io";
-import dbService from "./fbase/firebase";
+import dbService,{FieldValue} from "./fbase/firebase";
 
 
 const {v4:uuidV4}=require("uuid");
@@ -36,25 +36,35 @@ wsServer.on("connection",(socket)=>{
         console.log(`eventName:${eventName}`);
     });
     socket.on("join-room",async(roomId,peerId)=>{
-        let userlist=[];
-        await dbService.collection("room").add({
-            socketId:socket.id,
-            roomId:roomId,
-            peerId:peerId
-        });
-        const roomRef=dbService.collection('room');
-        const snapshot=await roomRef.where('roomId','==',roomId).get();
-        snapshot.forEach(doc=>{
-            console.log(doc.data());
-            const userObj={
-                ...doc.data()
+        // let userlist=[];
+        dbService.doc(`room/${roomId}`).get().then(async(doc) => {
+            let userlist=[];
+            if (doc.exists) {
+                await dbService.doc(`room/${roomId}`).update({
+                    users:FieldValue.arrayUnion({
+                            socketId:socket.id,
+                            peerId:peerId
+                        })
+                });
+            } else {
+                await dbService.doc(`room/${roomId}`).set({
+                    roomId:roomId,
+                    users:[{
+                        socketId:socket.id,
+                        peerId:peerId
+                    }]
+                });
             }
-            userlist.push(userObj);
-        });
-        // done(userlist[userlist.length-1]);
+            const user_doc=await dbService.doc(`room/${roomId}`).get();
+            // console.log(`userlist:${JSON.stringify(user_doc.data()['users'])}`);
+            userlist=user_doc.data()['users'];
+            socket.join(roomId);
+            socket.to(roomId).emit('user-connected',userlist);
 
-        socket.join(roomId);
-        socket.to(roomId).emit('user-connected',userlist);
+        }).catch((error) => {
+            console.log("Error getting document:", error);
+        });
+
 
     });
     socket.on('user-connected',(roomId,peerId,done)=>{
@@ -84,40 +94,28 @@ wsServer.on("connection",(socket)=>{
     //     socket.to(roomId).emit("user-leave",userlist);
     //     socket.leave(roomId);
     // });
+    socket.on("disconnecting",async () => {
+        
+        const rooms=[...socket.rooms];//object set값 가져오는법
+        const disconn_room=rooms.filter(room=> room!=socket.id);
+        // console.log(`disconn_room:${disconn_room}`);
+        const users_data = await (await dbService.doc(`room/${disconn_room}`).get()).data();
+        const del_user_data=users_data['users'].filter(user=>user.socketId !=socket.id);
+        if(del_user_data.length === 0){
+            dbService.doc(`room/${disconn_room}`).delete();
+        }else{
+            dbService.doc(`room/${disconn_room}`).update({
+                users:del_user_data
+            });
+        }
+        socket.to(disconn_room).emit("user-leave",del_user_data);
+
+    });
     socket.on("disconnect",async(reason)=>{
         console.log(`reason:${reason}`);
         console.log("SOCKETIO disconnect EVENT: ", socket.id, " client disconnect");
-        await dbService.collection(`room`)
-        .where("socketId","==",socket.id)
-        .get()
-        .then((qs)=>{
-            qs.forEach(async (doc)=> {
-                let userlist=[];
-                const doc_obj=doc.data();
-                // console.log(`doc_obj:${doc_obj.roomId}`);
-                await dbService.collection(`room`).doc(doc.id).delete();
-                const roomRef=dbService.collection('room');
-                const snapshot=await roomRef.where('roomId','==',doc_obj.roomId).get();
-                snapshot.forEach(doc=>{
-                    const userObj={
-                        id:doc.id,
-                        ...doc.data()
-                    }
-                    userlist.push(userObj);
-                });
-                socket.to(doc_obj.roomId).emit("user-leave",userlist);
-                // console.log(doc.id, " => ", doc.data());
-            });;
-        });
     });
 });
-
-// const peerServer = ExpressPeerServer(httpServer, {
-//     debug: true,
-// });
-
-// app.use('/peerServer', peerServer);
-
 
 httpServer.listen(port,()=>{
     console.log("서버 시작");
