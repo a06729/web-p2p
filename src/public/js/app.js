@@ -327,6 +327,7 @@ function onReadAsDataURL(event, text) {
 
     let remainingDataURL = text.slice(data.message.length);
     if (remainingDataURL.length) setTimeout(function () {
+        //재귀함수 방법으로 함수를 불러냄
         onReadAsDataURL(null, remainingDataURL); // continue transmitting
     }, 500);
 }

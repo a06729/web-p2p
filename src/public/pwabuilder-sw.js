@@ -2,17 +2,12 @@
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-const CACHE = "pwabuilder-page-v2";
+const CACHE = "pwabuilder-page-v3";
 
 // TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
 const offlineFallbackPage = [
-  '/public/views/offline.html',
-  '/public/pwabuilder-sw.js',
-  '/public/js/bundel/app-bundel.js',
-  '/public/js/FileSaver.js',
-  '/public/js/peerjs.js',
-  '/public/js/kakao/kakao.js',
-  '/public/js/jszip/jszip.min.js',
+  '/',
+  '/public/offline.html',
   '/public/img/kakaolink_btn.png',
   '/public/img/logo.png',
   '/public/img/telegram_ico.png'
@@ -42,6 +37,16 @@ if (workbox.navigationPreload.isSupported()) {
 //   );
 // });
 self.addEventListener('fetch', (event) => {
+  //   if (event.request.mode !== 'navigate') { // page navigation 제외
+  //     return;
+  //   }
+
+  // event.respondWith(
+  //     fetch(event.request)
+  //         .catch(() => {
+  //             return caches.open(CACHE)
+  //                 .then((cache) => cache.match(offlineFallbackPage));
+  //         }));
   if (event.request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
@@ -54,9 +59,9 @@ self.addEventListener('fetch', (event) => {
         const networkResp = await fetch(event.request);
         return networkResp;
       } catch (error) {
-
+        console.log(`에러:${error}`);
         const cache = await caches.open(CACHE);
-        const cachedResp = await cache.match(offlineFallbackPage);
+        const cachedResp = await cache.match('/public/offline.html');
         return cachedResp;
       }
     })());
