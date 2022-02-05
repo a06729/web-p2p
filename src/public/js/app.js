@@ -356,7 +356,7 @@ function saveToDisk(fileUrl, fileName) {
     const file_name_div=document.createElement("div");
     
     save.href =url;
-    save.target = '_blank';
+    // save.target = '_blank';
     save.className="text-2xl w-3/6 no-underline dm-transition text-black  mobile:w-3/6 dark:text-white";
     // save.download = fileName || fileUrl;
     save.addEventListener(clickEvent,file_server_download);
