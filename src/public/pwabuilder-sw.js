@@ -2,15 +2,22 @@
 
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
 
-const CACHE = "pwabuilder-page-v3";
+const CACHE = "pwabuilder-page-v4";
 
 // TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
 const offlineFallbackPage = [
-  '/',
   '/public/offline.html',
   '/public/img/kakaolink_btn.png',
   '/public/img/logo.png',
-  '/public/img/telegram_ico.png'
+  '/public/img/telegram_ico.png',
+  '/public/css/index.css',
+  '/public/css/styles.css',
+  '/public/css/reset.css',
+  '/public/img/kakaolink_btn.png',
+  '/public/img/telegram_ico.png', 
+  '/public/img/logo.png', 
+  '/public/img/icon/logo.ico',
+  '/public/js/app.js'
 ];
 
 self.addEventListener("message", (event) => {

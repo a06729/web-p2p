@@ -9,7 +9,7 @@
   "theme_color": "#ffffff",
   "intent_filters": {
     "scope_url_scheme": "https",
-    "scope_url_host": "spotty-dolphin-65.loca.lt",
+    "scope_url_host": "peershare-web.herokuapp.com",
     "scope_url_path": "/"
   },
   "icons": [
