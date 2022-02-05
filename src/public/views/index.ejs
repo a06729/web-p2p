@@ -14,15 +14,12 @@
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
-
-    <meta name="msapplication-TileImage" content="/public/img/icon/pwa/icon-144x144.png">
-
+    
     <!-- <link rel="stylesheet" href="https://unpkg.com/mvp.css"> -->
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="/public/css/reset.css">
     <link rel="stylesheet" type="text/css" href="/public/css/index.css">
     <link rel="stylesheet" type="text/css" href="/public/css/styles.css">
-    <!-- <script src="https://cdn.tailwindcss.com/"></script> -->
     <link rel="icon" href="/public/img/icon/logo.ico">
     <link href="/public/img/icon/pwa/icon-50x50.png" rel="apple-touch-icon">
     <link href="/public/img/icon/pwa/icon-76x76.png" rel="apple-touch-icon" sizes="76x76">
@@ -62,7 +59,7 @@
 
     <link rel="manifest" href="/public/manifest.json" />
     <title>PeerShare</title>
-    <script>
+    <script async> 
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/public/pwabuilder-sw.js');

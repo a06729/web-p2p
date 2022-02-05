@@ -33,24 +33,15 @@ self.addEventListener('install', async (event) => {
 if (workbox.navigationPreload.isSupported()) {
   workbox.navigationPreload.enable();
 }
-// self.addEventListener('fetch', function(event) {
-//   event.respondWith(
-//       caches.match(event.request).then(function(response) {
-//           return response || fetch(event.request);
-//       })
-//   );
-// });
-self.addEventListener('fetch', (event) => {
-  //   if (event.request.mode !== 'navigate') { // page navigation 제외
-  //     return;
-  //   }
 
-  // event.respondWith(
-  //     fetch(event.request)
-  //         .catch(() => {
-  //             return caches.open(CACHE)
-  //                 .then((cache) => cache.match(offlineFallbackPage));
-  //         }));
+workbox.routing.registerRoute(
+  new RegExp('/*'),
+  new workbox.strategies.StaleWhileRevalidate({
+    cacheName: CACHE
+  })
+);
+
+self.addEventListener('fetch', (event) => {
   if (event.request.mode === 'navigate') {
     event.respondWith((async () => {
       try {
@@ -63,9 +54,9 @@ self.addEventListener('fetch', (event) => {
         const networkResp = await fetch(event.request);
         return networkResp;
       } catch (error) {
-        console.log(`에러:${error}`);
+
         const cache = await caches.open(CACHE);
-        const cachedResp = await cache.match('/public/offline.html');
+        const cachedResp = await cache.match(offlineFallbackPage);
         return cachedResp;
       }
     })());
