@@ -100,14 +100,60 @@ myPeer.on('open',(id)=>{
 myPeer.on('connection',function(dataConnection){
     dataConnection.on("open",function(){
         let arrayToStoreChunks = [];
-        dataConnection.on('data',function(data){
+        const pg_div=document.querySelector(".receive_file_pg_div");
+        const pg_bar=document.createElement("progress");
+        const receive_file_name_h3=document.createElement("h3");
+        // let receive_file_size=0;
+        let percentComplete=0;
+        dataConnection.on('data',async function(data){
             let file_data = JSON.parse(data);
-            arrayToStoreChunks.push(file_data.message); // pushing chunks in array
+            arrayToStoreChunks.push(file_data.message); // pushing chunks in array 
+            
+            //파일 사이즈는 처음 보내는 겍체 에만 있기때문에
+            //처음에는 파일사이즈가 포함되어서 오기 때문에 if문을 실행한다.
+            //처음이 아닌때는 파일 사이즈가 없으므로 if문을 실행을 안한다.
+            //그러므로 if문은 한번만 실행된다.
+            if(file_data.file_size!=null){
+                pg_div.appendChild(receive_file_name_h3);
+                pg_div.appendChild(pg_bar);
+                // receive_file_size=file_data.file_size;
+                
+                pg_bar.id=file_data.file_name;
+                pg_bar.className="w-full";
+                pg_bar.max=100;
+                
+                receive_file_name_h3.className="text-center text-slate-500 my-3 text-2xl dark:text-white dm-transition";
+                receive_file_name_h3.id=`h3-${file_data.file_name}`;
+                receive_file_name_h3.innerText=`${file_data.file_name}파일 전송 받는중`;
+            }
+            
+            
+            percentComplete=file_data.percentComplete;
+            // percentComplete=await file_progress(file_data.message.length,receive_file_size);
+            pg_bar.value=percentComplete;
+            console.log(`file_data.percentComplete:${file_data.percentComplete}`);
+            // console.log(`receive_file_size:${receive_file_size}`);
+
             if (file_data.last) {
+                console.log(`arrayToStoreChunks:${arrayToStoreChunks}`);
+                pg_bar.value=0;
+                // receive_file_size=0;
+                document.getElementById(`${file_data.file_name}`).remove();
+                document.getElementById(`h3-${file_data.file_name}`).remove();
                 saveToDisk(arrayToStoreChunks.join(''),file_data.file_name);
                 arrayToStoreChunks = []; // resetting array
+                // dataConnection.close();
             }
+
+            dataConnection.on("close",()=>{
+                console.log("데이터 커넥션이 닫쳤습니다.");
+                arrayToStoreChunks = [];
+                pg_bar.value=0;
+                document.getElementById(`${file_data.file_name}`).remove();
+                document.getElementById(`h3-${file_data.file_name}`).remove();
+            });
         });
+
     });
 });
 
@@ -179,38 +225,46 @@ function addGuestAvatar(userList){
             guest_avatar_file_input_el.id=obj['peerId'];
             guest_avatar_file_input_el.style.display="none";
             guest_avatar_file_input_el.multiple="multiple";
+            
+            guest_avatar_file_input_el.addEventListener('change',fileChange);
 
-            guest_avatar_file_input_el.onchange=function(event){
+            // guest_avatar_file_input_el.onchange=function(event){
+            //     console.log(`보낼상대 peerId:${event.target.id}`);
+            //     conn=myPeer.connect(event.target.id);
+            //     //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
+            //     const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
+            //     guest_avatar_file_icon.forEach((file_icon)=>{
+            //         file_icon.style.display="none";
+            //     });
+            //     if(event.target.files.length>1){
+            //         const zip=new JSZip(); 
+            //         const files=event.target.files;
+            //         for(let i=0; i<files.length; i++){
+            //             zip.file(files[i].name,files[i],{base64: true});
+            //         }
+            //         zip.generateAsync({type:"blob",compression: "DEFLATE",compressionOptions:{level: 1}},
+            //         function updateCallback(metadata) {
+            //             console.log(`압축률:${metadata.percent}%`);
+            //         }).then((content)=>{
+            //             const reader = new window.FileReader();
+            //             console.log(`압축내용:${content}`);
+            //             file_name=`share_fileZip_${randomFileId()}.zip`;
+            //             reader.readAsDataURL(content);
+            //             reader.onload = onReadAsDataURL;
+            //         });
+            //         // console.log("파일이 1개 이상입니다.");
+            //     }else{
+            //         const reader = new window.FileReader();
+            //         const file=event.target.files[0];
+            //         file_name=file.name;
+            //         reader.readAsDataURL(file);
 
-                //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
-                const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
-                guest_avatar_file_icon.forEach((file_icon)=>{
-                    file_icon.style.display="none";
-                });
-                if(event.target.files.length>1){
-                    const zip=new JSZip(); 
-                    const files=event.target.files;
-                    for(let i=0; i<files.length; i++){
-                        zip.file(files[i].name,files[i]);
-                    }
-                    zip.generateAsync({type:"blob"}).then((content)=>{
-                        const reader = new window.FileReader();
-                        console.log(`압축내용:${content}`);
-                        file_name=`share_fileZip_${randomFileId()}.zip`;
-                        reader.readAsDataURL(content);
-                        reader.onload = onReadAsDataURL;
-                    });
-                    // console.log("파일이 1개 이상입니다.");
-                }else{
-                    const reader = new window.FileReader();
+            //         // conn=myPeer.connect(event.target.id);
 
-                    const file=event.target.files[0];
-                    file_name=file.name;
-                    reader.readAsDataURL(file);
-                    reader.onload = onReadAsDataURL;
+            //         reader.onload = onReadAsDataURL;
 
-                }
-            }
+            //     }
+            // }
 
             img_el.src=`${avatar_api_url}/${obj['peerId']}.svg `;
             img_el.className="guest_avatar_div__profile__img";
@@ -264,9 +318,10 @@ function addGuestAvatar(userList){
 // }
 
 function click_file_icon(event){
+    console.log(`파일클릭 이벤트:${event}`);
     const id=event.target.title;
     const file_btn=document.getElementById(`${id}`);
-    conn=myPeer.connect(file_btn.id);
+    conn=myPeer.connect(id);
     file_btn.click();
 }
 
@@ -283,31 +338,50 @@ function click_file_icon(event){
 // }
 
 
-function onReadAsDataURL(event, text) {
+ async function onReadAsDataURL(event, text) {
     let data = {}; // data object to transmit over data channel
     console.log(`file_name:${file_name}`);
-
+    
+    //처음 함수 시작하면 초기 세팅 값을 넣는다.
+    //재귀함수로 할때 event 파라미터를 null로 보내서 1번만 실행된다.
+    //재귀함수로 불러질때 text 파라미터는 remainingDataURL 변수(자르고 남은 파일 값)을 가진다.
     if (event){
         text = event.target.result; // on first invocation  
         //파일이 로드 되었을때 파일 크기를 file_size에 저장
         file_size=text.length;
+        //파일 사이즈를 peer들에게 보내기위해 객체에 저장한다.
+        //
+        data.file_size=file_size;
+
+        data.file_name=file_name;
+        file_progress_bar.style.display="";
     } 
         
     if (text.length > chunkLength) {
         data.message = text.slice(0, chunkLength); // getting chunk using predefined chunk length
         //파일 청크를 보내서 진행률 계산하는 함수
-        file_progress(data.message.length);
+        const percentComplete= await file_progress(data.message.length,file_size);
+        
+        //파일청크 진행률을 peer들한테도 보내서 peer들도 파일 전송 현황을 알수 있도록
+        //파일을 보낼때 진행률도 같이 객체에 추가해서 보낸다.
+        data.percentComplete=percentComplete;
+
+        current_progress.style.width=`${percentComplete}%`;
+        current_progress.innerText=`${percentComplete}%`;
 
     } else {
         data.message = text;
         data.last = true;
         data.file_name=file_name;
         //파일 청크를 보내서 진행률 계산하는 함수
-        file_progress(data.message.length);
+        // const percentComplete = await file_progress(data.message.length);
         
         //percentComplete을 0으로 초기화를 해야 진행률을 0으로 초기화 할수 있다.
         percentComplete=0;
-        current_file_size=0
+        current_file_size=0;
+
+        //파일을 보낼때 진행률도 같이 객체에 추가해서 보낸다.
+        data.percentComplete=percentComplete;
 
         //전송이 완료되었으므로 파일 보내기 아이콘을 다시 보이게 변경한다.
         const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
@@ -337,7 +411,7 @@ function randomFileId() {
 }
 
 //파일 세이브시 ul태그에 li태그로 추가해서 파일 다운로드 만들기
-function saveToDisk(fileUrl, fileName) {
+async function saveToDisk(fileUrl, fileName) {
     const ul = document.getElementById("fileUl");
     const li = document.createElement("li");
     const none_file_div_el=document.querySelector(".none_file_div");
@@ -348,8 +422,8 @@ function saveToDisk(fileUrl, fileName) {
         none_file_div_el.style.display="none";
     }
     
-    // const url=dataURItoBlob(fileUrl);
-    const url=fileUrl;
+    const url=await dataURItoBlob(fileUrl);
+    // const url=fileUrl;
     const save = document.createElement('a');
     const download_icon_span = document.createElement("span");
     const delete_icon_span= document.createElement("span");
@@ -385,18 +459,25 @@ function saveToDisk(fileUrl, fileName) {
 }
 
 function dataURItoBlob(dataURI) {
-    const byteString = atob(dataURI.split(',')[1]);
-    const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+    return new Promise((resolve,reject)=>{
+        try{
+            const byteString = atob(dataURI.split(',')[1]);
+            const mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
     
-    const ab = new ArrayBuffer(byteString.length);
-    let ia = new Uint8Array(ab);
-    
-    for (let i = 0; i < byteString.length; i++) {
-      ia[i] = byteString.charCodeAt(i);
-    }
-    // const blob = new Blob([ab], {type: mimeString});
-    // return blob;
-    return URL.createObjectURL(new Blob([ab], {type: mimeString}));
+            const ab = new ArrayBuffer(byteString.length);
+            let ia = new Uint8Array(ab);
+            
+            for (let i = 0; i < byteString.length; i++) {
+              ia[i] = byteString.charCodeAt(i);
+            }
+            // const blob = new Blob([ab], {type: mimeString});
+            // return blob;
+            resolve(URL.createObjectURL(new Blob([ab], {type: mimeString})));
+        }catch(err){
+            reject(err);
+        }
+    });
+
 }
 
 //파일 다운로드 함수
@@ -408,11 +489,10 @@ function file_server_download(event){
     const filename=event.target.innerText;
 
     // const blob=dataURItoBlob(a_href);
-    const blob_url=dataURItoBlob(a_href);
+    // const blob_url=dataURItoBlob(a_href);
 
-    saveAs(blob_url, filename);
-    window.URL.revokeObjectURL(blob_url);
-    // window.URL.revokeObjectURL(blob);
+    saveAs(a_href, filename);
+    window.URL.revokeObjectURL(a_href);
 }
 
 //파일 다운로드 아이콘 클릭시 사용되는 함수
@@ -441,23 +521,75 @@ function file_delete_icon_click(event){
 
 
 // 파일 전송 진행률을 계산해주는 함수
-function file_progress(current_file_chuck){
-    console.log(`file_size:${file_size}`);
+function file_progress(current_file_chuck,file_size){
+    return new Promise((resolve,reject)=>{
+        try{
+            console.log(`file_size:${file_size}`);
 
-    //현재 어디 청크까지 표시하는 변수
-    current_file_size=current_file_size+current_file_chuck;
-    //현재 어디까지 파일이 파일이 보내졌는지 보여주는 퍼센트
-    percentComplete =Math.floor((current_file_size / file_size)*100);
+            //현재 어디 청크까지 표시하는 변수
+            current_file_size=current_file_size+current_file_chuck;
+            //현재 어디까지 파일이 파일이 보내졌는지 보여주는 퍼센트
+            percentComplete =Math.floor((current_file_size / file_size)*100);
+        
+            // console.log(`current_file_size:${current_file_size}`);
+            resolve(percentComplete);
 
-    // console.log(`current_file_size:${current_file_size}`);
+        }catch(err){
+            console.log(`err:${err}`);
+        }
+    });
+    
+    // console.log(`file_size:${file_size}`);
 
-    file_progress_bar.style.display="";
-    current_progress.style.width=`${percentComplete}%`;
-    current_progress.innerText=`${percentComplete}%`;
+    // //현재 어디 청크까지 표시하는 변수
+    // current_file_size=current_file_size+current_file_chuck;
+    // //현재 어디까지 파일이 파일이 보내졌는지 보여주는 퍼센트
+    // percentComplete =Math.floor((current_file_size / file_size)*100);
+
+    // // console.log(`current_file_size:${current_file_size}`);
+
+    // file_progress_bar.style.display="";
+    // current_progress.style.width=`${percentComplete}%`;
+    // current_progress.innerText=`${percentComplete}%`;
 
     // console.log(`percentComplete:${percentComplete}%`);
     
     
+}
+
+function fileChange(event){
+    // console.log(`보낼상대 peerId:${event.target.id}`);
+
+    //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
+    const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
+    guest_avatar_file_icon.forEach((file_icon)=>{
+        file_icon.style.display="none";
+    });
+    if(event.target.files.length>1){
+        const zip=new JSZip(); 
+        const files=event.target.files;
+        for(let i=0; i<files.length; i++){
+            zip.file(files[i].name,files[i],{base64: true});
+        }
+        zip.generateAsync({type:"blob",compression: "DEFLATE",compressionOptions:{level: 1}},
+        function updateCallback(metadata) {
+            console.log(`압축률:${metadata.percent}%`);
+        }).then((content)=>{
+            const reader = new window.FileReader();
+            console.log(`압축내용:${content}`);
+            file_name=`share_fileZip_${randomFileId()}.zip`;
+            reader.readAsDataURL(content);
+            reader.onload = onReadAsDataURL;
+        });
+        // console.log("파일이 1개 이상입니다.");
+    }else{
+        const reader = new window.FileReader();
+        const file=event.target.files[0];
+        file_name=file.name;
+        reader.readAsDataURL(file);
+        reader.onload = onReadAsDataURL;
+
+    }
 }
 
 

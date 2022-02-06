@@ -8,3 +8,6 @@
 .dm-transition{
     @apply transition ease-linear delay-200
 }
+.receive_file_pg_div{
+    @apply flex items-center justify-center flex-col px-2
+}
