@@ -135,7 +135,7 @@ myPeer.on('connection',function(dataConnection){
             // console.log(`receive_file_size:${receive_file_size}`);
 
             if (file_data.last) {
-                console.log(`arrayToStoreChunks:${arrayToStoreChunks}`);
+                // console.log(`arrayToStoreChunks:${arrayToStoreChunks}`);
                 pg_bar.value=0;
                 // receive_file_size=0;
                 document.getElementById(`${file_data.file_name}`).remove();
@@ -318,11 +318,16 @@ function addGuestAvatar(userList){
 // }
 
 function click_file_icon(event){
-    console.log(`파일클릭 이벤트:${event}`);
-    const id=event.target.title;
-    const file_btn=document.getElementById(`${id}`);
-    conn=myPeer.connect(id);
-    file_btn.click();
+    try{
+        console.log(`파일클릭 이벤트:${event}`);
+        const id=event.target.title;
+        const file_btn=document.getElementById(`${id}`);
+        conn=myPeer.connect(id);
+        file_btn.click();
+    }catch(err){
+        console.log(err);
+    }
+
 }
 
 //클릭한 아바타 값을 가져온다.
@@ -557,39 +562,55 @@ function file_progress(current_file_chuck,file_size){
     
 }
 
-function fileChange(event){
-    // console.log(`보낼상대 peerId:${event.target.id}`);
-
-    //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
-    const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
-    guest_avatar_file_icon.forEach((file_icon)=>{
-        file_icon.style.display="none";
-    });
-    if(event.target.files.length>1){
-        const zip=new JSZip(); 
-        const files=event.target.files;
-        for(let i=0; i<files.length; i++){
-            zip.file(files[i].name,files[i],{base64: true});
-        }
-        zip.generateAsync({type:"blob",compression: "DEFLATE",compressionOptions:{level: 1}},
-        function updateCallback(metadata) {
-            console.log(`압축률:${metadata.percent}%`);
-        }).then((content)=>{
-            const reader = new window.FileReader();
-            console.log(`압축내용:${content}`);
-            file_name=`share_fileZip_${randomFileId()}.zip`;
-            reader.readAsDataURL(content);
-            reader.onload = onReadAsDataURL;
+async function fileChange(event){
+    try{
+        // console.log(`보낼상대 peerId:${event.target.id}`);
+        //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
+        const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
+        guest_avatar_file_icon.forEach((file_icon)=>{
+            file_icon.style.display="none";
         });
-        // console.log("파일이 1개 이상입니다.");
-    }else{
-        const reader = new window.FileReader();
-        const file=event.target.files[0];
-        file_name=file.name;
-        reader.readAsDataURL(file);
-        reader.onload = onReadAsDataURL;
+        if(event.target.files.length>1){
+            const zip=new JSZip();
+            const zip_div=document.querySelector(".file_zip_pg_div");
+            const zip_pg=document.querySelector("#zip-pg");
+            const files=event.target.files;
+            for(let i=0; i<files.length; i++){
+                zip.file(files[i].name,files[i],{compression: "DEFLATE"});
+            }
+            zip.generateAsync({type:"blob",streamFiles: true,compression: "DEFLATE"},
+            function updateCallback(metadata) {
+                zip_div.style.display="";
+                console.log(`압축률:${metadata.percent}%`);
+                zip_pg.value=metadata.percent;
+            }).then((content)=>{
+    
+                zip_div.style.display="none";
+                zip_pg.value=0;
 
+                const reader = new window.FileReader();
+                console.log(`압축내용:${content}`);
+                file_name=`share_fileZip_${randomFileId()}.zip`;
+                reader.readAsDataURL(content);
+                reader.onload = onReadAsDataURL;
+                event.target.value="";
+            });
+            // console.log("파일이 1개 이상입니다.");
+        }else{
+            const reader = new window.FileReader();
+            const file=event.target.files[0];
+            file_name=file.name;
+            reader.readAsDataURL(file);
+            reader.onload = onReadAsDataURL;
+            event.target.value="";
+        }
+    }catch(err){
+        const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
+        guest_avatar_file_icon.forEach((file_icon)=>{
+            file_icon.style.display="";
+        });
     }
+
 }
 
 

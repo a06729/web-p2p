@@ -8,9 +8,9 @@
     <meta property="og:title" content="PeerShare" />
     <meta property="og:type" content="website" />
     <meta property="og:description" content="PeerShare 초대장이 도착했습니다.">
-    <meta property="og:url" content="https://fuzzy-bear-44.loca.lt" />
-    <meta property="og:image" content="https://fuzzy-bear-44.loca.lt/public/img/logo.png" />
-    <meta property="og:image:secure_url" content="https://fuzzy-bear-44.loca.lt/public/img/logo.png" />
+    <meta property="og:url" content="https://peershare-web.herokuapp.com" />
+    <meta property="og:image" content="https://peershare-web.herokuapp.com/public/img/logo.png" />
+    <meta property="og:image:secure_url" content="https://peershare-web.herokuapp.com/public/img/logo.png" />
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
@@ -157,6 +157,13 @@
                         <progress max="100" value="10" class="w-full"></progress> -->
                     </div>
 
+                    <div class="file_zip_pg_div" style="display: none;">
+                        <h3 class="file-list-title text-center text-slate-500 my-3 text-2xl dark:text-white dm-transition">
+                            파일 압축중 입니다.
+                        </h3>
+                        <progress id="zip-pg" max="100" value="0" class="w-full"></progress> 
+                    </div>
+
                     <h3 class="file-list-title text-center text-slate-500 my-3 text-2xl dark:text-white dm-transition">
                         파일 리스트</h3>
                     <ul id="fileUl" class="file_ul">
@@ -226,6 +233,8 @@
             </div>
         </div>
     </div>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/web-streams-polyfill@2.0.2/dist/ponyfill.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/streamsaver@2.0.3/StreamSaver.min.js" defer></script> -->
     <script src="https://cdn.jsdelivr.net/npm/tw-elements/dist/js/index.min.js" defer></script>
     <script src="/public/js/peerjs.js" defer></script>
     <script src="/socket.io/socket.io.js" defer></script>
