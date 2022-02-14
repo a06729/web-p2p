@@ -11,3 +11,20 @@
 .receive_file_pg_div{
     @apply flex items-center justify-center flex-col px-2
 }
+.skeleton_ani{
+    animation: steleton_loading 1s linear infinite alternate;
+}
+.skeleton_text{
+    width: 200px;
+    height: .5rem;
+    margin-bottom: .25rem;
+    border-radius: .125rem;
+}
+@keyframes steleton_loading{
+    0%{
+        background-color: hsl(200,20%,70%);
+    }
+    100%{
+        background-color: hsl(200,20%,95%);
+    }
+}

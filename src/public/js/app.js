@@ -90,9 +90,21 @@ myPeer.on('open',(id)=>{
     const avatar_avatar_peerId=document.querySelector(".my_avatar_div__profile__title");
     socket.emit("join-room",ROOM_ID,id);
     peerId=id;
-    avatar_img.src=`${avatar_api_url}/${peerId}.svg`;
-    avatar_img.title=peerId;
-    avatar_avatar_peerId.innerHTML=`식별값:${peerId}`;
+    fetch(`${avatar_api_url}/${peerId}.svg`).then((res)=>{
+        return res.blob();
+    }).then((blob)=>{
+        const avata_url=URL.createObjectURL(blob);
+        avatar_img.src=avata_url;
+        avatar_img.title=peerId;
+        avatar_avatar_peerId.innerHTML=`식별값:${peerId}`;
+        avatar_img.onload=()=>{
+            avatar_img.classList.remove("skeleton_ani");
+            URL.revokeObjectURL(avata_url);
+        }
+    });
+    // avatar_img.src=`${avatar_api_url}/${peerId}.svg`;
+    // avatar_img.title=peerId;
+    // avatar_avatar_peerId.innerHTML=`식별값:${peerId}`;
 
     // guest_avatar_div.style.display="none";
 });
