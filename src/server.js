@@ -15,10 +15,21 @@ const app=express();
 app.set("view engine","ejs");
 app.set("views",__dirname+"/public/views");
 
-app.use("/public",express.static(__dirname+"/public"));
+app.use("/public",express.static(__dirname+"/public",{
+    setHeaders:(res)=>{
+        //Service-Worker-Allowed,'/' 이렇게 해줘야  manifest.json에 scope start_url을 '/'로 할수 있다.
+        res.setHeader('Service-Worker-Allowed', '/');
+    }
+}));
+// manifest.json에 scope,start_url 를 '/'경로 하면 '/'경로로 정적파일을 가져올수 있도록 해야한다.
+app.use("/",express.static(__dirname+"/offline",{
+    setHeaders:(res)=>{
+        res.setHeader('Service-Worker-Allowed', '/');
+    }
+}));
 
 app.get("/",(req,res)=>{
-    res.redirect(`/${uuidV4()}`);  
+    res.redirect(`/${uuidV4()}`);
 });
 app.get("/:room",(req,res)=>{
     res.render('index',{

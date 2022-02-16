@@ -59,13 +59,6 @@
 
     <link rel="manifest" href="/public/manifest.json" />
     <title>PeerShare</title>
-    <script async> 
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/public/pwabuilder-sw.js');
-            });
-        }
-    </script>
     <script>
         const ROOM_ID = "<%= roomId %>";
         const KakaoApi = "<%= KakaoApi %>";
@@ -244,6 +237,13 @@
     <script src="/public/js/jszip/jszip.min.js" defer></script>
     <script src="/public/js/FileSaver.js" defer></script>
     <script src="/public/js/bundel/app-bundel.js" defer></script>
+    <script defer> 
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/public/pwabuilder-sw.js',{scope:"/"});
+            });
+        }
+    </script>
     <!-- <script src="/public/js/kakao/kakao.js" defer></script> -->
     <!-- <script src="/public/js/app.js" defer></script> -->
     <!-- <script src="/public/js/sns.js" defer></script> -->

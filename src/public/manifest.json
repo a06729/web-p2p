@@ -3,9 +3,9 @@
   "display": "standalone",
   "name": "PeerShare",
   "orientation": "portrait",
-  "scope": ".",
   "short_name": "PeerShare",
-  "start_url": ".",
+  "scope": "/",
+  "start_url": "/",
   "theme_color": "#ffffff",
   "icons": [
       {
