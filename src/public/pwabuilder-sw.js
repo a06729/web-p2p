@@ -7,13 +7,6 @@ const CACHE = "pwabuilder-page-v5";
 // TODO: replace the following with the correct offline fallback page i.e.: const offlineFallbackPage = "offline.html";
 const offlineFallbackPage = [
   '/offline.html',
-  '/public/css/index.css',
-  '/public/css/styles.css',
-  '/public/css/reset.css',
-  '/public/img/kakaolink_btn.png',
-  '/public/img/telegram_ico.png', 
-  '/public/img/logo.png', 
-  '/public/img/icon/logo.ico',
 ];
 
 self.addEventListener("message", (event) => {
@@ -51,8 +44,6 @@ if (workbox.navigationPreload.isSupported()) {
 // });
 
 self.addEventListener('fetch', (event) => {
-  console.log("데이터 요청(fetch)!",event.request);
-  console.log("데이터 요청(fetch)!",event);
   if (event.request.mode === 'navigate') {
     event.respondWith((async () => {
       try {

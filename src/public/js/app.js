@@ -2,7 +2,6 @@ import sns from "./sns.js";
 import QRious from "./qrious.js";
 import darkMode from "./darkMode.js";
 // import reset_css from "../css/reset.css";
-
 //window.함수이름 으로 설정해주여야 번들링 했을때 tag의 onclick을 인식한다.
 window.shareKakao = sns.shareKakao;
 window.shareTelegram = sns.shareTelegram;
@@ -240,44 +239,6 @@ function addGuestAvatar(userList){
             
             guest_avatar_file_input_el.addEventListener('change',fileChange);
 
-            // guest_avatar_file_input_el.onchange=function(event){
-            //     console.log(`보낼상대 peerId:${event.target.id}`);
-            //     conn=myPeer.connect(event.target.id);
-            //     //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
-            //     const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
-            //     guest_avatar_file_icon.forEach((file_icon)=>{
-            //         file_icon.style.display="none";
-            //     });
-            //     if(event.target.files.length>1){
-            //         const zip=new JSZip(); 
-            //         const files=event.target.files;
-            //         for(let i=0; i<files.length; i++){
-            //             zip.file(files[i].name,files[i],{base64: true});
-            //         }
-            //         zip.generateAsync({type:"blob",compression: "DEFLATE",compressionOptions:{level: 1}},
-            //         function updateCallback(metadata) {
-            //             console.log(`압축률:${metadata.percent}%`);
-            //         }).then((content)=>{
-            //             const reader = new window.FileReader();
-            //             console.log(`압축내용:${content}`);
-            //             file_name=`share_fileZip_${randomFileId()}.zip`;
-            //             reader.readAsDataURL(content);
-            //             reader.onload = onReadAsDataURL;
-            //         });
-            //         // console.log("파일이 1개 이상입니다.");
-            //     }else{
-            //         const reader = new window.FileReader();
-            //         const file=event.target.files[0];
-            //         file_name=file.name;
-            //         reader.readAsDataURL(file);
-
-            //         // conn=myPeer.connect(event.target.id);
-
-            //         reader.onload = onReadAsDataURL;
-
-            //     }
-            // }
-
             img_el.src=`${avatar_api_url}/${obj['peerId']}.svg `;
             img_el.className="guest_avatar_div__profile__img";
             img_el.title=obj['peerId'];
@@ -291,9 +252,6 @@ function addGuestAvatar(userList){
             guest_avatar_div.appendChild(guest_avatar_profile_el);
 
         }
-        // if(obj['peerId']===peerId){
-        //     fireDocId=obj['id'];
-        // }
     });
     
     //접속유저가 없으면 유저창을 안보이게 그리고 유저가 없는 창을 보이게 한다.
@@ -438,14 +396,11 @@ async function saveToDisk(fileUrl, fileName) {
     if(none_file_div_el.childElementCount>0){
         none_file_div_el.style.display="none";
     }
-    
     const url=await dataURItoBlob(fileUrl);
-    // const url=fileUrl;
     const save = document.createElement('a');
     const download_icon_span = document.createElement("span");
     const delete_icon_span= document.createElement("span");
-    const file_name_div=document.createElement("div");
-    
+    const file_name_div=document.createElement("div"); 
     save.href =url;
     // save.target = '_blank';
     save.className="text-2xl w-3/6 no-underline dm-transition text-black  mobile:w-3/6 dark:text-white";
@@ -471,8 +426,9 @@ async function saveToDisk(fileUrl, fileName) {
     li.append(save);
     li.append(download_icon_span);
     li.append(delete_icon_span);
-
     ul.append(li);
+    
+    // indexedDB.addValue({"filename":fileName,"size":blobData.size,"fileBlob":blobData});
 }
 
 function dataURItoBlob(dataURI) {
@@ -500,16 +456,36 @@ function dataURItoBlob(dataURI) {
 //파일 다운로드 함수
 function file_server_download(event){
     event.preventDefault();
+
     //a 태그의 href 값을 가져오는 변수
     const a_href=event.target.parentElement.href;
     //a 태그에 있는 div가 파일명이므로 그 텍스트를 가져온다.
     const filename=event.target.innerText;
-
-    // const blob=dataURItoBlob(a_href);
-    // const blob_url=dataURItoBlob(a_href);
-
-    saveAs(a_href, filename);
-    window.URL.revokeObjectURL(a_href);
+    // saveAs(a_href, filename);
+    fetch(a_href).then(r => r.blob()).then((blob)=>{
+        const fileStream = streamSaver.createWriteStream(filename, {
+            size: blob.size // Makes the percentage visiable in the download
+        });
+    
+        const readableStream = blob.stream();
+        
+        if (window.WritableStream && readableStream.pipeTo) {
+            return readableStream.pipeTo(fileStream)
+              .then(() => console.log('done writing'));
+        }
+        window.writer = fileStream.getWriter();
+    
+        const reader = readableStream.getReader();
+    
+        const pump = () => reader.read()
+        .then(res => res.done
+          ? writer.close()
+          : writer.write(res.value).then(pump))
+    
+        pump();
+    }).catch((err)=>{
+        console.log(err);
+    });
 }
 
 //파일 다운로드 아이콘 클릭시 사용되는 함수
@@ -522,17 +498,17 @@ function file_download_icon_click(event){
 function file_delete_icon_click(event){
     try{
         const file_li_tag=event.target.parentElement;
-        const file_href=file_li_tag.querySelector("a").href;
+        const file_URL=file_li_tag.querySelector("a").href;
         const file_ul_tag=document.querySelector("#fileUl");
-        URL.revokeObjectURL(file_href);
+        console.log(`del fileName:${file_name}`);
         file_li_tag.remove();
+        URL.revokeObjectURL(file_URL);
         if(file_ul_tag.childElementCount==0){
             const none_file_div=document.querySelector(".none_file_div");
             none_file_div.style.display="";
         }    
-        // console.log(event);
     }catch(err){
-        alert(err);
+        console.log(err);
     };
 }
 
@@ -602,7 +578,7 @@ async function fileChange(event){
 
                 const reader = new window.FileReader();
                 console.log(`압축내용:${content}`);
-                file_name=`share_fileZip_${randomFileId()}.zip`;
+                file_name=`${uuidv4()}_${randomFileId()}.zip`;
                 reader.readAsDataURL(content);
                 reader.onload = onReadAsDataURL;
                 event.target.value="";
@@ -611,7 +587,7 @@ async function fileChange(event){
         }else{
             const reader = new window.FileReader();
             const file=event.target.files[0];
-            file_name=file.name;
+            file_name=`${uuidv4()}_${file.name}`;
             reader.readAsDataURL(file);
             reader.onload = onReadAsDataURL;
             event.target.value="";
@@ -623,6 +599,13 @@ async function fileChange(event){
         });
     }
 
+}
+
+function uuidv4() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
 }
 
 
