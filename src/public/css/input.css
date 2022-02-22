@@ -11,6 +11,9 @@
 .receive_file_pg_div{
     @apply flex items-center justify-center flex-col px-2
 }
+.fileName_span{
+    @apply text-2xl no-underline dm-transition mobile:w-3/6 text-black truncate dark:text-white
+}
 .skeleton_ani{
     animation: steleton_loading 1s linear infinite alternate;
 }

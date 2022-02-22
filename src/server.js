@@ -85,25 +85,18 @@ wsServer.on("connection",(socket)=>{
         
     });
 
-    // socket.on('user-leave',async(roomId,peerId,fireDocId)=>{
-    //     let userlist=[];
-    //     console.log(`fireDocId:${fireDocId}`);
-    //     console.log(`유저 ${peerId} 가 떠났습니다.`);
-    //     await dbService.collection(`room`).doc(fireDocId).delete();
-        
-    //     const roomRef=dbService.collection('room');
-    //     const snapshot=await roomRef.where('roomId','==',roomId).get();
-    //     snapshot.forEach(doc=>{
-    //         console.log(doc.data());
-    //         const userObj={
-    //             id:doc.id,
-    //             ...doc.data()
-    //         }
-    //         userlist.push(userObj);
-    //     });
-    //     socket.to(roomId).emit("user-leave",userlist);
-    //     socket.leave(roomId);
-    // });
+
+    socket.on("file-allow-request",(target_soket_id,sender_soket_id,file_name)=>{
+        console.log(`파일 요청 허용을 보내는 대상 소켓:${target_soket_id}`);
+        wsServer.to(target_soket_id).emit("file-allow-request",sender_soket_id,target_soket_id,file_name);
+    });
+    socket.on("file-download-allow",(senderSoketId,targetSoketId,fileName)=>{
+        wsServer.to(senderSoketId).emit("file-download-allow",targetSoketId,fileName);
+    });
+    socket.on("file-download-denial",(senderSoketId,targetSoketId)=>{
+        wsServer.to(senderSoketId).emit("file-download-denial",targetSoketId);
+    });
+
     socket.on("disconnecting",async () => {
         
         const rooms=[...socket.rooms];//object set값 가져오는법
