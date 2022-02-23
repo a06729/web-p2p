@@ -125,10 +125,12 @@
     font-family: sans-serif;
     text-align: center;
     max-width: 200px;
+    height: 247px;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
     padding: 20px;
     margin-right: 10px;
     border-radius: 15px;
+    box-sizing: border-box;
 }
 .guest_avatar_div__profile__img{
     width: 5rem;

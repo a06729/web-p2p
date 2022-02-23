@@ -7,7 +7,7 @@ window.shareKakao = sns.shareKakao;
 window.shareTelegram = sns.shareTelegram;
 window.sharUrl = sns.sharUrl;
 window.handleDarkMode=darkMode.handleDarkMode;
-window.allowFileDownload=allowFileDownload;
+// window.allowFileDownload=allowFileDownload;
 window.qr_gen=qr_ge;
 
 darkMode.darkModeInit();
@@ -39,7 +39,7 @@ let peerId;
 //peer들이 서로 연결 됬을때 쓰기위한 변수
 //myPeer.connect(peerId)함수에서 연결이되면
 //conn.send() 함수로 연결된 peer에 값을 보낼수 있다.
-let conn;
+var conn;
 
 //fireBase db의 고유 글 번호
 // let fireDocId;
@@ -202,26 +202,37 @@ socket.on("user-leave",(userList)=>{
     addGuestAvatar(userList);
 });
 
-socket.on("file-allow-request",(sender_soket_id,target_soket_id,file_name)=>{
+socket.on("file-allow-request",(sender_soket_id,target_soket_id,file_name,target_peer_id)=>{
     console.log(`파일 전송을 허락을 구하는 socket의 아이디${sender_soket_id}`);
     console.log(`파일이름:${file_name}를 허용하겠습니까?`);
-    allowFileList(sender_soket_id,target_soket_id,file_name);
+    allowFileList(sender_soket_id,target_soket_id,file_name,target_peer_id);
 });
 
-socket.on("file-download-allow",(targetSoketId,fileName)=>{
-    peerFileSend(targetSoketId,fileName);
+socket.on("file-download-allow",(targetSoketId,fileName,peerId)=>{
+    peerFileSend(targetSoketId,fileName,peerId);
 });
 
 socket.on("file-download-denial",(targetSoketId)=>{
+    //파일 전송 취소 아이콘
+    const close_icons=document.querySelector(".guest_avatar_div__profile__close-icon");
     console.log(`다운로드 거부 targetSoketId:${targetSoketId}`);
     const target_file_tag=document.getElementById(targetSoketId);
     const target_div_tag=target_file_tag.parentElement;
     const file_upload_icon=target_div_tag.querySelector("span");
     target_file_tag.value="";
     file_upload_icon.style.display="";
+    //파일전송 취소 아이콘 삭제
+    close_icons.remove();
 });
 
-function allowFileList(sender_soket_id,target_soket_id,file_name){
+socket.on("file-cancel-request",(close_target_soket_id,close_sender_soket_id)=>{
+    const ul=document.querySelector("#allowFileUl");
+    const targetli=ul.querySelector(`li[data-li-target-soket-id='${close_target_soket_id}']`);
+    console.log("파일 요청 캔슬 도착했습니다.");
+    targetli.remove();
+});
+
+function allowFileList(sender_soket_id,target_soket_id,file_name,target_peer_id){
     const div=document.createElement("div");
     const allowUl=document.querySelector("#allowFileUl");
     const li=document.createElement("li");
@@ -243,6 +254,7 @@ function allowFileList(sender_soket_id,target_soket_id,file_name){
     fileAllow_icon_span.dataset.filename=file_name;
     fileAllow_icon_span.dataset.senderSoketId=sender_soket_id;
     fileAllow_icon_span.dataset.targetSoketId=target_soket_id;
+    fileAllow_icon_span.dataset.peerid=target_peer_id;
     fileAllow_icon_span.onclick=allowFileDownload;
 
     fileDenial_icon_span.dataset.filename=file_name;
@@ -250,6 +262,8 @@ function allowFileList(sender_soket_id,target_soket_id,file_name){
     fileDenial_icon_span.dataset.targetSoketId=target_soket_id;
     fileDenial_icon_span.onclick=denialFileDownload;
     
+    li.dataset.liSenderSoketId=sender_soket_id;
+    li.dataset.liTargetSoketId=target_soket_id;
 
     div.append(fileName_span);
     div.append(fileAllow_icon_span);
@@ -263,10 +277,11 @@ function allowFileDownload(event){
     const fileName=event.target.dataset.filename;
     const senderSoketId=event.target.dataset.senderSoketId;
     const targetSoketId=event.target.dataset.targetSoketId;
+    const peerId=event.target.dataset.peerid;
     console.log(`파일 다운로드 허용 클릭${event.target.dataset.filename}`);
     console.log(`파일 전송해주는 소켓 ID:${event.target.dataset.senderSoketId}`);
     event.target.parentElement.remove();
-    socket.emit("file-download-allow",senderSoketId,targetSoketId,fileName);
+    socket.emit("file-download-allow",senderSoketId,targetSoketId,fileName,peerId);
 }
 
 function denialFileDownload(event){
@@ -275,6 +290,25 @@ function denialFileDownload(event){
     event.target.parentElement.remove();
     socket.emit("file-download-denial",senderSoketId,targetSoketId);
 }
+
+function fileRequestCancel(event){
+    const fileUploadSpan=event.target.parentElement.querySelector("span");
+    const close_target_soket_id=event.target.dataset.closeTargetSoketId;
+    const close_sender_soket_id=event.target.dataset.closeSenderSoketId;
+    const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
+    guest_avatar_file_icon.forEach((file_icon)=>{
+        file_icon.style.display="";
+    });
+    console.log(`close_target_soket_id:${close_target_soket_id}`);
+    console.log(`close_sender_soket_id:${close_sender_soket_id}`);
+
+    socket.emit("file-cancel-request",close_target_soket_id,close_sender_soket_id);
+    console.log("파일 전송 요청 캔슬");
+    event.target.remove();
+
+    fileUploadSpan.style.display="";
+}
+
 
 //게스트 아바타를 생성해주는 함수
 function addGuestAvatar(userList){
@@ -311,6 +345,7 @@ function addGuestAvatar(userList){
             guest_avatar_file_input_el.type="file";
             guest_avatar_file_input_el.id=obj['socketId'];
             guest_avatar_file_input_el.dataset.socketid=obj['socketId'];
+            guest_avatar_file_input_el.dataset.peerId=obj['peerId'];
             guest_avatar_file_input_el.style.display="none";
             guest_avatar_file_input_el.multiple="multiple";
             
@@ -392,7 +427,7 @@ function click_file_icon(event){
 // }
 
 
- async function onReadAsDataURL(event, text) {
+ async function onReadAsDataURL(event,text) {
     let data = {}; // data object to transmit over data channel
     console.log(`file_name:${file_name}`);
     
@@ -443,6 +478,9 @@ function click_file_icon(event){
             file_icon.style.display="";
         });
 
+        const close_icons=document.querySelector(".guest_avatar_div__profile__close-icon");
+        close_icons.remove();
+
         //전송이 완료되었으므로 파일 프로그레스바를 다시 안보이게 변경한다.
         file_progress_bar.style.display="none";
         //전송이 완료되었으므로 프로그레스바를 0%으로 만들어준다.
@@ -466,9 +504,9 @@ function randomFileId() {
 
 //파일 세이브시 ul태그에 li태그로 추가해서 파일 다운로드 만들기
 async function saveToDisk(fileUrl, fileName) {
-    const ul = document.getElementById("fileUl");
-    const li = document.createElement("li");
-    const none_file_div_el=document.querySelector(".none_file_div");
+    // const ul = document.getElementById("fileUl");
+    // const li = document.createElement("li");
+    // const none_file_div_el=document.querySelector(".none_file_div");
 
     // li.className="flex justify-center items-center";
 
@@ -660,18 +698,29 @@ function file_progress(current_file_chuck,file_size){
 async function fileChange(event){
     const target_soket_id=event.target.dataset.socketid;
     const sender_soket_id=socket.id;
+    const target_peer_id=event.target.dataset.peerid;
     try{
         const target_file_tag=document.getElementById(target_soket_id);
         const file_tag_icon=target_file_tag.parentElement.querySelector("span");
+        const cancel_icon=document.createElement("span");
+        cancel_icon.className="material-icons guest_avatar_div__profile__close-icon";
+        cancel_icon.innerText="file_download_off";
+        cancel_icon.dataset.closeTargetSoketId=target_soket_id;
+        cancel_icon.dataset.closeSenderSoketId=sender_soket_id;
+
+        cancel_icon.onclick=fileRequestCancel;
+
+        target_file_tag.parentElement.appendChild(cancel_icon);
+
         file_tag_icon.style.display="none";
         //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
-        // const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
-        // guest_avatar_file_icon.forEach((file_icon)=>{
-        //     file_icon.style.display="none";
-        // });
+        const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
+        guest_avatar_file_icon.forEach((file_icon)=>{
+            file_icon.style.display="none";
+        });
         if(event.target.files.length>1){
-            const file_name=`${uuidv4()}_${randomFileId()}.zip`
-            socket.emit("file-allow-request",target_soket_id,sender_soket_id,file_name);
+            const file_name=`${uuidv4()}_${randomFileId()}.zip`;
+            socket.emit("file-allow-request",target_soket_id,sender_soket_id,file_name,target_peer_id);
             // const zip=new JSZip();
             // const zip_div=document.querySelector(".file_zip_pg_div");
             // const zip_pg=document.querySelector("#zip-pg");
@@ -699,7 +748,7 @@ async function fileChange(event){
         }else{
             const file=event.target.files[0];
             const file_name=`${uuidv4()}_${file.name}.zip`
-            socket.emit("file-allow-request",target_soket_id,sender_soket_id,file_name);
+            socket.emit("file-allow-request",target_soket_id,sender_soket_id,file_name,target_peer_id);
             // const reader = new window.FileReader();
             // const file=event.target.files[0];
             // file_name=`${uuidv4()}_${file.name}`;
@@ -716,7 +765,7 @@ async function fileChange(event){
 
 }
 
-async function peerFileSend(targetSoketId,fileName){
+async function peerFileSend(targetSoketId,fileName,peerId){
     const fileTag=document.getElementById(targetSoketId);
     console.log(`senderSoketId:${targetSoketId}`);
     console.log(`fileTag:${fileTag.files}`);
@@ -740,7 +789,6 @@ async function peerFileSend(targetSoketId,fileName){
                 console.log(`압축률:${metadata.percent}%`);
                 zip_pg.value=metadata.percent;
             }).then((content)=>{
-
                 zip_div.style.display="none";
                 zip_pg.value=0;
 
@@ -756,14 +804,20 @@ async function peerFileSend(targetSoketId,fileName){
             const file=fileTag.files[0];
             file_name=fileName;
             reader.readAsDataURL(file);
-            reader.onload = onReadAsDataURL;
-            fileTag.value="";
+            reader.onload =onReadAsDataURL;
         }
 
     }catch(err){
         console.log(err);
     }
 }
+
+// function generatePeerConn(peerId){
+//     function genrate(){
+//         return myPeer.connect(peerId);
+//     }
+//     return genrate;
+// }
 
 
 function uuidv4() {

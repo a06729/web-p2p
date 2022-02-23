@@ -1654,6 +1654,10 @@
   border-radius: .125rem;
 }
 
+.guest_avatar_div__profile__close-icon{
+  font-size: 50px;
+}
+
 @-webkit-keyframes steleton_loading{
   0%{
     background-color: hsl(200,20%,70%);

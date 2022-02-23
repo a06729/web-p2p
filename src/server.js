@@ -86,12 +86,17 @@ wsServer.on("connection",(socket)=>{
     });
 
 
-    socket.on("file-allow-request",(target_soket_id,sender_soket_id,file_name)=>{
+    socket.on("file-allow-request",(target_soket_id,sender_soket_id,file_name,target_peer_id)=>{
         console.log(`파일 요청 허용을 보내는 대상 소켓:${target_soket_id}`);
-        wsServer.to(target_soket_id).emit("file-allow-request",sender_soket_id,target_soket_id,file_name);
+        wsServer.to(target_soket_id).emit("file-allow-request",sender_soket_id,target_soket_id,file_name,target_peer_id);
     });
-    socket.on("file-download-allow",(senderSoketId,targetSoketId,fileName)=>{
-        wsServer.to(senderSoketId).emit("file-download-allow",targetSoketId,fileName);
+
+    socket.on("file-cancel-request",(close_target_soket_id,close_sender_soket_id)=>{
+        wsServer.to(close_target_soket_id).emit("file-cancel-request",close_target_soket_id,close_sender_soket_id);
+    });
+
+    socket.on("file-download-allow",(senderSoketId,targetSoketId,fileName,peerId)=>{
+        wsServer.to(senderSoketId).emit("file-download-allow",targetSoketId,fileName,peerId);
     });
     socket.on("file-download-denial",(senderSoketId,targetSoketId)=>{
         wsServer.to(senderSoketId).emit("file-download-denial",targetSoketId);
