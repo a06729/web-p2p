@@ -36,10 +36,12 @@ const myPeer=new Peer(undefined,{
 //peerId는 peer server의 고유값 입니다.
 let peerId;
 
+let target_peerId;
+
 //peer들이 서로 연결 됬을때 쓰기위한 변수
 //myPeer.connect(peerId)함수에서 연결이되면
 //conn.send() 함수로 연결된 peer에 값을 보낼수 있다.
-var conn;
+// var conn;
 
 //fireBase db의 고유 글 번호
 // let fireDocId;
@@ -119,13 +121,14 @@ myPeer.on('connection',function(dataConnection){
         let percentComplete=0;
         dataConnection.on('data',async function(data){
             let file_data = JSON.parse(data);
+            console.log(`file_data:${file_data}`);
             arrayToStoreChunks.push(file_data.message); // pushing chunks in array 
             
             //파일 사이즈는 처음 보내는 겍체 에만 있기때문에
             //처음에는 파일사이즈가 포함되어서 오기 때문에 if문을 실행한다.
             //처음이 아닌때는 파일 사이즈가 없으므로 if문을 실행을 안한다.
             //그러므로 if문은 한번만 실행된다.
-            if(file_data.file_size!=null){
+            if(file_data.first){
                 pg_div.appendChild(receive_file_name_h3);
                 pg_div.appendChild(pg_bar);
                 // receive_file_size=file_data.file_size;
@@ -147,7 +150,7 @@ myPeer.on('connection',function(dataConnection){
             // console.log(`receive_file_size:${receive_file_size}`);
 
             if (file_data.last) {
-                // console.log(`arrayToStoreChunks:${arrayToStoreChunks}`);
+                console.log(`arrayToStoreChunks:${arrayToStoreChunks}`);
                 pg_bar.value=0;
                 // receive_file_size=0;
                 document.getElementById(`${file_data.file_name}`).remove();
@@ -406,7 +409,7 @@ function click_file_icon(event){
         // socket.emit("file-allow",soket_id);
         console.log(`peer_id:${peer_id}`);
         const file_btn=event.target.parentElement.lastChild;
-        conn=myPeer.connect(peer_id);
+        // conn=myPeer.connect(peer_id);
         file_btn.click();
     }catch(err){
         console.log(err);
@@ -427,27 +430,34 @@ function click_file_icon(event){
 // }
 
 
- async function onReadAsDataURL(event,text) {
+ async function onReadAsDataURL(event,text,conn) {
     let data = {}; // data object to transmit over data channel
     console.log(`file_name:${file_name}`);
-    
     //처음 함수 시작하면 초기 세팅 값을 넣는다.
     //재귀함수로 할때 event 파라미터를 null로 보내서 1번만 실행된다.
     //재귀함수로 불러질때 text 파라미터는 remainingDataURL 변수(자르고 남은 파일 값)을 가진다.
+    if(conn==null){
+        conn=await generatePeerConn(target_peerId);
+    }
     if (event){
         text = event.target.result; // on first invocation  
+        console.log(`target_peerId:${target_peerId}`);
         //파일이 로드 되었을때 파일 크기를 file_size에 저장
         file_size=text.length;
         //파일 사이즈를 peer들에게 보내기위해 객체에 저장한다.
         //
         data.file_size=file_size;
+        data.first=true;
 
         data.file_name=file_name;
         file_progress_bar.style.display="";
-    } 
+    }else{
+        data.first=false;
+    }
         
     if (text.length > chunkLength) {
         data.message = text.slice(0, chunkLength); // getting chunk using predefined chunk length
+        console.log(`청크 사이즈보다 큰 파일${data.message}`);
         //파일 청크를 보내서 진행률 계산하는 함수
         const percentComplete= await file_progress(data.message.length,file_size);
         
@@ -457,9 +467,12 @@ function click_file_icon(event){
 
         current_progress.style.width=`${percentComplete}%`;
         current_progress.innerText=`${percentComplete}%`;
+        console.dir(conn);
+        conn.send(JSON.stringify(data));
 
     } else {
         data.message = text;
+        console.log(`청크 사이즈보다 작은 파일${data.message}`);
         data.last = true;
         data.file_name=file_name;
         //파일 청크를 보내서 진행률 계산하는 함수
@@ -487,16 +500,31 @@ function click_file_icon(event){
         current_progress.style.width="0%";
         //전송이 완료되었으므로 프로그레스바를 0%으로 텍스트를 변경해준디.
         current_progress.innerText="0%";
+        console.dir(conn);
+        conn.send(JSON.stringify(data));
     }
-    // console.log(`data:${JSON.stringify(data)}`);
-    conn.send(JSON.stringify(data)); // use JSON.stringify for chrome!
-
+    
     let remainingDataURL = text.slice(data.message.length);
     if (remainingDataURL.length) setTimeout(function () {
         //재귀함수 방법으로 함수를 불러냄
-        onReadAsDataURL(null, remainingDataURL); // continue transmitting
+        onReadAsDataURL(null, remainingDataURL,conn); // continue transmitting
     }, 500);
 }
+
+function generatePeerConn(peerId){
+    return new Promise((resolve,reject)=>{
+        try{
+            const peerConnect=myPeer.connect(peerId);
+            peerConnect.on("open",()=>{
+                resolve(peerConnect);
+            });
+        }catch(err){
+            reject(err);
+        }
+    });
+}
+
+
 //파일 겹칠수 있을때 쓰는 랜덤 이름 생성 함수
 function randomFileId() {
     return Math.random().toString(36).substr(2, 16);
@@ -698,7 +726,8 @@ function file_progress(current_file_chuck,file_size){
 async function fileChange(event){
     const target_soket_id=event.target.dataset.socketid;
     const sender_soket_id=socket.id;
-    const target_peer_id=event.target.dataset.peerid;
+    const target_peer_id=event.target.dataset.peerId;
+    console.log(`target_peer_id:${target_peer_id}`);
     try{
         const target_file_tag=document.getElementById(target_soket_id);
         const file_tag_icon=target_file_tag.parentElement.querySelector("span");
@@ -747,7 +776,7 @@ async function fileChange(event){
             // });
         }else{
             const file=event.target.files[0];
-            const file_name=`${uuidv4()}_${file.name}.zip`
+            const file_name=`${uuidv4()}_${file.name}`;
             socket.emit("file-allow-request",target_soket_id,sender_soket_id,file_name,target_peer_id);
             // const reader = new window.FileReader();
             // const file=event.target.files[0];
@@ -766,9 +795,11 @@ async function fileChange(event){
 }
 
 async function peerFileSend(targetSoketId,fileName,peerId){
+    target_peerId=peerId;
     const fileTag=document.getElementById(targetSoketId);
-    console.log(`senderSoketId:${targetSoketId}`);
-    console.log(`fileTag:${fileTag.files}`);
+    // console.log(`senderSoketId:${targetSoketId}`);
+    // console.log(`fileTag:${fileTag.files}`);
+    console.log(`테스트 peerId:${peerId}`);
     try{
         //파일 전송중에는 다른 인원에게 전송못하도록 파일 아이콘을 안보이게 변경한다.
         const guest_avatar_file_icon=document.querySelectorAll(".guest_avatar_div__profile__file-icon");
@@ -812,12 +843,7 @@ async function peerFileSend(targetSoketId,fileName,peerId){
     }
 }
 
-// function generatePeerConn(peerId){
-//     function genrate(){
-//         return myPeer.connect(peerId);
-//     }
-//     return genrate;
-// }
+
 
 
 function uuidv4() {
